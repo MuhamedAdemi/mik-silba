@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 
 from menu.models import Category, MenuItem
@@ -78,3 +78,43 @@ class OrderFlowViewTests(TestCase):
         self.client.post(reverse("orders:print_shank", args=[order.id]))
         order_item = OrderItem.objects.get(order=order, menu_item=self.item)
         self.assertIsNotNone(order_item.sent_to_bar_at)
+
+
+class HtmxCsrfTests(TestCase):
+    """Regression test: the real browser (htmx) sends the CSRF token via the
+    X-CSRFToken header, set globally through hx-headers on <body> in
+    base.html (see templates/base.html). Django's default test Client skips
+    CSRF checks entirely, which is why this class of bug wasn't caught by
+    the other view tests — this one turns CSRF enforcement back on."""
+
+    def setUp(self):
+        self.client = Client(enforce_csrf_checks=True)
+        zone = Zone.objects.create(name="Terasa A", order=1)
+        self.table = Table.objects.create(zone=zone, label="A1", order=1)
+        User.objects.create_user("konobar1", password="pass12345")
+        self.client.login(username="konobar1", password="pass12345")
+        category = Category.objects.create(name="Napici+Sok", order=1)
+        self.item = MenuItem.objects.create(category=category, name="Cappuccino", price=Decimal("2.50"))
+
+        # A real GET (unlike Client.login()) renders {% csrf_token %} and sets
+        # the csrftoken cookie, exactly like a browser loading the page first.
+        self.client.get(reverse("venue:table_grid"))
+        csrf_token = self.client.cookies["csrftoken"].value
+        self.client.post(
+            reverse("orders:open_table", args=[self.table.id]),
+            {"csrfmiddlewaretoken": csrf_token},
+        )
+        self.order = self.table.open_order
+
+    def test_add_item_without_csrf_header_is_rejected(self):
+        response = self.client.post(reverse("orders:add_item", args=[self.order.id, self.item.id]))
+        self.assertEqual(response.status_code, 403)
+
+    def test_add_item_with_csrf_header_succeeds(self):
+        csrf_token = self.client.cookies["csrftoken"].value
+        response = self.client.post(
+            reverse("orders:add_item", args=[self.order.id, self.item.id]),
+            HTTP_X_CSRFTOKEN=csrf_token,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(OrderItem.objects.filter(order=self.order, menu_item=self.item).exists())

@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="{% static 'css/pos.css' %}">
     {% block extra_head %}{% endblock %}
 </head>
-<body>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 {% block navbar %}
 <nav class="navbar navbar-dark bg-dark px-3 no-print">
     <a class="navbar-brand fw-bold" href="{% url 'venue:table_grid' %}">☕ Caffe MiK</a>
