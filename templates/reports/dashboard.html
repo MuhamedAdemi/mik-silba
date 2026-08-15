@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load menu_extras %}
+{% block title %}Dashboard — Caffe MiK{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Gjendja live</h1>
+    <a href="{% url 'reports:sales_report' %}" class="btn btn-outline-primary btn-sm">Raporti i shitjeve →</a>
+</div>
+
+<div class="row row-cols-2 row-cols-md-4 g-2 mb-4">
+    {% for stat in zone_stats %}
+        <div class="col">
+            <div class="card text-center shadow-sm">
+                <div class="card-body py-3">
+                    <div class="fw-bold">{{ stat.zone.name }}</div>
+                    <div class="fs-4">{{ stat.occupied }} / {{ stat.total }}</div>
+                    <div class="small text-muted">tavolina zënë</div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<h2 class="h5">Tavolina hapur tani ({{ open_orders|length }})</h2>
+<div class="table-responsive">
+    <table class="table table-sm table-striped align-middle">
+        <thead>
+        <tr>
+            <th>Stoli</th>
+            <th>Zona</th>
+            <th>Konobar</th>
+            <th>Hapur prej</th>
+            <th class="text-end">Total deri tani</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for order in open_orders %}
+            <tr class="{% if order.minutes_open >= 60 %}table-danger{% elif order.minutes_open >= 30 %}table-warning{% endif %}">
+                <td>{{ order.table.label }}</td>
+                <td>{{ order.table.zone.name }}</td>
+                <td>{{ order.waiter.profile.display_name|default:order.waiter.username }}</td>
+                <td>{{ order.minutes_open }} min</td>
+                <td class="text-end">{{ order.total|eur }}</td>
+                <td><a href="{% url 'orders:order_detail' order.id %}" class="btn btn-sm btn-outline-secondary">Hap</a></td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="6" class="text-muted">Asnjë tavolinë e hapur momentalisht.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<p class="small text-muted">Rreshti bëhet i verdhë pas 30 min dhe i kuq pas 60 min hapur — sinjal që tavolina mund të ketë nevojë për vëmendje.</p>
+{% endblock %}

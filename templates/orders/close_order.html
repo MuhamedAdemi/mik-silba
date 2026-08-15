@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load menu_extras %}
+{% block title %}Zaključi — Stol {{ order.table.label }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-center">
+    <div class="card shadow-sm" style="width: 100%; max-width: 420px;">
+        <div class="card-body p-4">
+            <h1 class="h4">Zaključi narudžbu — Stol {{ order.table.label }}</h1>
+            <p class="cart-total">Total: {{ order.total|eur }}</p>
+            {% if not order.items.exists %}
+                <div class="alert alert-warning">Stoli s'ka artikuj, nuk mund të mbyllet.</div>
+            {% endif %}
+            <form method="post">
+                {% csrf_token %}
+                <label class="form-label fw-bold">Mënyra e pagesës</label>
+                <div class="d-grid gap-2 mb-3">
+                    <button type="submit" name="payment_method" value="CASH" class="btn btn-outline-success py-3 fw-bold">Gotovina</button>
+                    <button type="submit" name="payment_method" value="CARD" class="btn btn-outline-primary py-3 fw-bold">Kartica</button>
+                </div>
+            </form>
+            <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-link">← Kthehu te stoli</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

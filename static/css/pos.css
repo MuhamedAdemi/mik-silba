@@ -1,0 +1,103 @@
+:root {
+    --pos-blue: #cfe8fb;
+    --pos-blue-dark: #17395c;
+    --pos-item-bg: #1b2a3d;
+}
+
+body {
+    background: #eef4f9;
+}
+
+/* ---- Stolovi grid ---- */
+.zone-title {
+    font-weight: 700;
+    color: var(--pos-blue-dark);
+    margin-top: 1rem;
+}
+
+.table-btn {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.75rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border: none;
+    color: #fff;
+}
+
+.table-btn.free {
+    background: #3fa34d;
+}
+
+.table-btn.occupied {
+    background: #d9534f;
+}
+
+.table-btn small {
+    font-weight: 400;
+    font-size: 0.7rem;
+}
+
+/* ---- Order screen / menu grid ---- */
+.menu-item-btn {
+    min-height: 70px;
+    background: var(--pos-item-bg);
+    color: #fff;
+    border: 2px solid var(--pos-blue);
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.4rem;
+}
+
+.menu-item-btn:active {
+    background: var(--pos-blue-dark);
+}
+
+.cart-panel {
+    background: #fff;
+    border-radius: 0.5rem;
+    min-height: 300px;
+}
+
+.cart-total {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.action-bar .btn {
+    min-height: 56px;
+    font-weight: 700;
+}
+
+/* ---- Print (80mm receipt) ---- */
+.no-print {
+    display: block;
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    body {
+        background: #fff;
+    }
+    .receipt {
+        width: 80mm;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+    }
+}
+
+.receipt {
+    max-width: 80mm;
+    margin: 0 auto;
+    font-family: "Courier New", monospace;
+}
+
+.receipt hr {
+    border-top: 1px dashed #000;
+}

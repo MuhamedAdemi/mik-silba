@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Stolovi — Caffe MiK{% endblock %}
+{% block content %}
+{% for zone in zones %}
+    <div class="zone-title h5">{{ zone.name }}</div>
+    <div class="row row-cols-3 row-cols-md-5 row-cols-lg-6 g-2 mb-3">
+        {% for table in zone.tables.all %}
+            {% if table.is_active %}
+            <div class="col">
+                <form method="post" action="{% url 'orders:open_table' table.id %}">
+                    {% csrf_token %}
+                    <button type="submit"
+                            id="table-btn-{{ table.id }}"
+                            class="table-btn w-100 h-100 {% if table.is_occupied %}occupied{% else %}free{% endif %}">
+                        <span>{{ table.label }}</span>
+                        <small id="table-info-{{ table.id }}">
+                            {% if table.is_occupied %}e zënë{% else %}e lirë{% endif %}
+                        </small>
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endfor %}
+
+<script>
+const STATUS_URL = "{% url 'venue:table_status_json' %}";
+
+async function refreshTables() {
+    try {
+        const res = await fetch(STATUS_URL);
+        const data = await res.json();
+        for (const [tableId, info] of Object.entries(data.tables)) {
+            const btn = document.getElementById(`table-btn-${tableId}`);
+            const infoEl = document.getElementById(`table-info-${tableId}`);
+            if (!btn || !infoEl) continue;
+            if (info.occupied) {
+                btn.classList.remove("free");
+                btn.classList.add("occupied");
+                infoEl.textContent = `${info.minutes_open} min · ${info.total} €`;
+            } else {
+                btn.classList.remove("occupied");
+                btn.classList.add("free");
+                infoEl.textContent = "e lirë";
+            }
+        }
+    } catch (e) {
+        // heshtazi injoro nese s'ka internet per nje moment
+    }
+}
+setInterval(refreshTables, 4500);
+</script>
+{% endblock %}

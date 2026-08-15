@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Kyçu — Caffe MiK{% endblock %}
+{% block navbar %}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow-sm" style="width: 100%; max-width: 360px;">
+        <div class="card-body p-4">
+            <h1 class="h4 text-center mb-4">☕ Caffe MiK</h1>
+            {% if form.errors %}
+                <div class="alert alert-danger py-2">Username ose fjalëkalim i gabuar.</div>
+            {% endif %}
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    {{ form.username }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Fjalëkalimi</label>
+                    {{ form.password }}
+                </div>
+                <input type="hidden" name="next" value="{{ next }}">
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Kyçu</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

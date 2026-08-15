@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load menu_extras %}
+{% block title %}Predračun — Stol {{ order.table.label }}{% endblock %}
+{% block navbar %}{% endblock %}
+{% block content %}
+<div class="no-print d-flex gap-2 justify-content-center mb-3">
+    <button class="btn btn-primary" onclick="window.print()">🖨 Printo</button>
+    <a class="btn btn-outline-secondary" href="{% url 'orders:order_detail' order.id %}">← Kthehu</a>
+</div>
+
+<div class="receipt">
+    <h4 class="text-center mb-0">Caffe MiK</h4>
+    <p class="text-center small mb-1">PREDRAČUN — nuk është faturë fiskale</p>
+    <p class="text-center mb-1">STOL {{ order.table.label }} · {% now "d.m.Y H:i" %}</p>
+    <hr>
+    <table class="table table-sm">
+        <tbody>
+        {% for item in order.items.all %}
+            <tr>
+                <td>{{ item.quantity }} x {{ item.menu_item.name }}</td>
+                <td class="text-end">{{ item.subtotal|eur }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <hr>
+    <div class="d-flex justify-content-between fw-bold fs-5">
+        <span>TOTAL</span>
+        <span>{{ order.total|eur }}</span>
+    </div>
+</div>
+{% endblock %}
