@@ -19,6 +19,7 @@
         <a href="{% url 'venue:table_grid' %}" class="pos-tab text-decoration-none active">{{ "Stolovi" }}</a>
         {% if user.is_authenticated and user.profile.is_admin %}
             <a href="{% url 'reports:dashboard' %}" class="pos-tab text-decoration-none">{% t "nav_reports" %}</a>
+            <a href="{% url 'accounts:staff_list' %}" class="pos-tab text-decoration-none">{% t "nav_staff" %}</a>
         {% endif %}
     </div>
     <div class="d-flex align-items-center gap-2">
@@ -45,7 +46,7 @@
 <main class="container-fluid py-3">
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-info no-print">{{ message }}</div>
+            <div class="alert alert-{{ message.tags|default:'info' }} no-print">{{ message }}</div>
         {% endfor %}
     {% endif %}
     {% block content %}{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load i18n_extras %}
+{% block title %}{% t "staff_title" %} — Caffe MiK{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">{% t "staff_title" %}</h1>
+    <a href="{% url 'accounts:staff_create' %}" class="btn btn-primary btn-sm">{% t "staff_add" %}</a>
+</div>
+
+<table class="table table-sm table-striped align-middle">
+    <thead>
+    <tr>
+        <th>{% t "login_username" %}</th>
+        <th>{% t "staff_display_name" %}</th>
+        <th>{% t "staff_role" %}</th>
+        <th></th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for person in staff %}
+        <tr class="{% if not person.is_active %}text-muted{% endif %}">
+            <td>
+                {{ person.username }}
+                {% if person == user %}<span class="small">{% t "staff_you" %}</span>{% endif %}
+            </td>
+            <td>{{ person.profile.display_name }}</td>
+            <td>
+                {% if person.is_superuser %}
+                    Superuser
+                {% else %}
+                    {{ person.profile.get_role_display }}
+                {% endif %}
+            </td>
+            <td>{% if not person.is_active %}<span class="badge bg-secondary">{% t "staff_inactive_badge" %}</span>{% endif %}</td>
+            <td class="text-end">
+                {% if person != user %}
+                    {% t "staff_delete_confirm" as delete_confirm_msg %}
+                    <form method="post" action="{% url 'accounts:staff_delete' person.id %}" class="m-0"
+                          onsubmit="return confirm('{{ delete_confirm_msg|escapejs }}');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger">{% t "staff_delete" %}</button>
+                    </form>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

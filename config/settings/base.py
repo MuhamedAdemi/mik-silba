@@ -8,6 +8,7 @@ environments (DEBUG, DATABASES, ALLOWED_HOSTS, ...) are set there.
 from pathlib import Path
 
 import environ
+from django.contrib.messages import constants as message_constants
 
 # config/settings/base.py -> project root is three parents up.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -89,3 +90,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "venue:table_grid"
 LOGOUT_REDIRECT_URL = "accounts:login"
+
+MESSAGE_TAGS = {
+    message_constants.ERROR: "danger",
+}

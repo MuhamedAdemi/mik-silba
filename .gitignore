@@ -6,3 +6,4 @@ staticfiles/
 .env
 server.log
 *.egg-info/
+.claude/

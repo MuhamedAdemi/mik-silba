@@ -16,6 +16,22 @@ LANGUAGES = [
 TRANSLATIONS = {
     "nav_reports": {"hr": "Izvještaji", "en": "Reports", "sq": "Raportet"},
     "nav_logout": {"hr": "Odjava", "en": "Log out", "sq": "Dilni"},
+    "nav_staff": {"hr": "Osoblje", "en": "Staff", "sq": "Stafi"},
+
+    "staff_title": {"hr": "Osoblje", "en": "Staff", "sq": "Stafi"},
+    "staff_add": {"hr": "Dodaj osoblje", "en": "Add staff", "sq": "Shto staf"},
+    "staff_display_name": {"hr": "Ime za prikaz", "en": "Display name", "sq": "Emri për ekran"},
+    "staff_role": {"hr": "Uloga", "en": "Role", "sq": "Roli"},
+    "staff_delete": {"hr": "Obriši", "en": "Delete", "sq": "Fshi"},
+    "staff_delete_confirm": {
+        "hr": "Sigurno obrisati/deaktivirati ovog korisnika?",
+        "en": "Really delete/deactivate this user?",
+        "sq": "Je i sigurt që do ta fshish/çaktivizosh këtë përdorues?",
+    },
+    "staff_inactive_badge": {"hr": "deaktiviran", "en": "deactivated", "sq": "i çaktivizuar"},
+    "staff_you": {"hr": "(ti)", "en": "(you)", "sq": "(ti)"},
+    "staff_save": {"hr": "Spremi", "en": "Save", "sq": "Ruaj"},
+    "staff_back": {"hr": "← Osoblje", "en": "← Staff", "sq": "← Stafi"},
 
     "login_error": {
         "hr": "Pogrešno korisničko ime ili lozinka.",
