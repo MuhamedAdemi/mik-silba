@@ -1,60 +1,76 @@
 {% load menu_extras %}
 {% load i18n_extras %}
-<div class="cart-panel p-3 shadow-sm">
-    <div class="d-flex justify-content-between align-items-start mb-2">
-        <div>
-            <div class="h5 mb-0">STOL {{ order.table.label }}</div>
-            <div class="small text-muted">{{ order.waiter.profile.display_name|default:order.waiter.username }}</div>
-        </div>
-        <a href="{% url 'venue:table_grid' %}" class="btn btn-sm btn-outline-secondary no-print">{% t "cart_back" %}</a>
-    </div>
-
-    <div style="max-height: 45vh; overflow-y: auto;">
-        <table class="table table-sm align-middle">
+<div class="cart-panel">
+    <div style="max-height: 40vh; overflow-y: auto;">
+        <table class="cart-table">
+            <thead>
+            <tr>
+                <th>{% t "col_item_name" %}</th>
+                <th class="text-end">{% t "col_qty" %}</th>
+                <th class="text-end">{% t "col_amount" %}</th>
+            </tr>
+            </thead>
             <tbody>
             {% for item in order.items.all %}
-                <tr>
+                <tr class="cart-row" data-item-id="{{ item.id }}" onclick="micSelectRow(this)">
                     <td>
                         {{ item.menu_item.name }}
                         {% if item.sent_to_bar_at %}<span class="badge bg-secondary">{% t "cart_sent_to_bar" %}</span>{% endif %}
                     </td>
-                    <td class="text-nowrap no-print">
-                        <button class="btn btn-sm btn-outline-danger" hx-post="{% url 'orders:decrement_item' order.id item.id %}" hx-target="#cart-panel">−</button>
-                        <span class="mx-1">{{ item.quantity }}</span>
-                        <button class="btn btn-sm btn-outline-success" hx-post="{% url 'orders:increment_item' order.id item.id %}" hx-target="#cart-panel">+</button>
-                    </td>
-                    <td class="only-print d-none">{{ item.quantity }}</td>
+                    <td class="text-end">{{ item.quantity }},00</td>
                     <td class="text-end">{{ item.subtotal|eur }}</td>
-                    <td class="no-print">
-                        <button class="btn btn-sm btn-link text-danger" hx-post="{% url 'orders:remove_item' order.id item.id %}" hx-target="#cart-panel">x</button>
-                    </td>
                 </tr>
             {% empty %}
-                <tr><td class="text-muted">{% t "cart_empty" %}</td></tr>
+                <tr><td colspan="3" class="text-center py-3 opacity-75">{% t "cart_empty" %}</td></tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
 
-    <hr>
-    <div class="d-flex justify-content-between cart-total">
-        <span>{% t "cart_total" %}</span>
-        <span>{{ order.total|eur }}</span>
+    <div class="cart-total-bar">
+        <div>
+            <div>STOL {{ order.table.label }}</div>
+            <div class="small opacity-75">{{ order.waiter.profile.display_name|default:order.waiter.username }}</div>
+        </div>
+        <div>{{ order.total|eur }}</div>
     </div>
 
-    <div class="action-bar d-grid gap-2 mt-3 no-print">
-        <div class="d-flex gap-2">
-            <a class="btn btn-outline-primary flex-fill" target="_blank"
-               href="{% url 'orders:print_shank' order.id %}">{% t "cart_print_shank" %}</a>
-            <a class="btn btn-outline-primary flex-fill" target="_blank"
-               href="{% url 'orders:print_predracun' order.id %}">{% t "cart_print_predracun" %}</a>
+    <div class="action-rows no-print" data-order-id="{{ order.id }}">
+        <div class="action-row">
+            <a class="pos-btn" href="{% url 'venue:table_grid' %}">{% t "action_open_table" %}</a>
+            <a class="pos-btn emphasis" href="{% url 'orders:close_order' order.id %}">{% t "cart_close_order" %}</a>
+            <a class="pos-btn" target="_blank" href="{% url 'orders:print_predracun' order.id %}">{% t "cart_print_predracun" %}</a>
+            <button type="button" class="pos-btn narrow" onclick="micActOnSelected('hiq')">x</button>
+            <button type="button" class="pos-btn narrow" onclick="micActOnSelected('minus')">−</button>
+            <button type="button" class="pos-btn narrow" onclick="micActOnSelected('plus')">+</button>
         </div>
-        <a class="btn btn-success" href="{% url 'orders:close_order' order.id %}">{% t "cart_close_order" %}</a>
+        <div class="action-row">
+            <form method="post" action="{% url 'accounts:logout' %}" class="flex-fill m-0 d-flex">
+                {% csrf_token %}
+                <button type="submit" class="pos-btn w-100">{% t "nav_logout" %}</button>
+            </form>
+            <button type="button" class="pos-btn" onclick="micActOnSelected('hiq')">{% t "action_delete_item" %}</button>
+            <a class="pos-btn" href="{% url 'orders:cash_state' %}">{% t "action_cash_state" %}</a>
+            <form method="post" action="{% url 'orders:close_order' order.id %}" class="flex-fill m-0 d-flex">
+                {% csrf_token %}
+                <input type="hidden" name="payment_method" value="CARD">
+                <button type="submit" class="pos-btn w-100">{% t "close_card" %}</button>
+            </form>
+            <form method="post" action="{% url 'orders:close_order' order.id %}" class="flex-fill m-0 d-flex">
+                {% csrf_token %}
+                <input type="hidden" name="payment_method" value="CASH">
+                <button type="submit" class="pos-btn w-100">Eur</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center px-2 py-2 no-print">
+        <a class="btn btn-sm btn-outline-primary" target="_blank" href="{% url 'orders:print_shank' order.id %}">{% t "cart_print_shank" %}</a>
         {% t "cart_cancel_confirm" as cancel_confirm_msg %}
-        <form method="post" action="{% url 'orders:cancel_order' order.id %}"
+        <form method="post" action="{% url 'orders:cancel_order' order.id %}" class="m-0"
               onsubmit="return confirm('{{ cancel_confirm_msg|escapejs }}');">
             {% csrf_token %}
-            <button type="submit" class="btn btn-outline-danger w-100">{% t "cart_cancel_table" %}</button>
+            <button type="submit" class="btn btn-sm btn-outline-danger">{% t "cart_cancel_table" %}</button>
         </form>
     </div>
 </div>

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load menu_extras %}
+{% load i18n_extras %}
+{% block title %}{% t "cash_state_title" %} — Caffe MiK{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">{% t "cash_state_title" %} — {% t "cash_state_today" %}</h1>
+
+<div class="row row-cols-3 g-2 mb-4">
+    <div class="col">
+        <div class="card text-center shadow-sm"><div class="card-body py-3">
+            <div class="fs-5">{{ cash_total|eur }}</div>
+            <div class="small text-muted">{% t "cash_state_cash" %}</div>
+        </div></div>
+    </div>
+    <div class="col">
+        <div class="card text-center shadow-sm"><div class="card-body py-3">
+            <div class="fs-5">{{ card_total|eur }}</div>
+            <div class="small text-muted">{% t "cash_state_card" %}</div>
+        </div></div>
+    </div>
+    <div class="col">
+        <div class="card text-center shadow-sm bg-light"><div class="card-body py-3">
+            <div class="fs-5 fw-bold">{{ grand_total|eur }}</div>
+            <div class="small text-muted">{% t "cash_state_total" %}</div>
+        </div></div>
+    </div>
+</div>
+
+<h2 class="h6">{% t "cash_state_your_closed" %} ({{ orders_today|length }})</h2>
+<table class="table table-sm">
+    <thead>
+    <tr>
+        <th>{% t "dashboard_table" %}</th>
+        <th>{% t "close_payment_method" %}</th>
+        <th class="text-end">{% t "cart_total" %}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for order in orders_today %}
+        <tr>
+            <td>{{ order.table.label }}</td>
+            <td>{% if order.payment_method == "CASH" %}{% t "close_cash" %}{% else %}{% t "close_card" %}{% endif %}</td>
+            <td class="text-end">{{ order.total|eur }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="3" class="text-muted">{% t "dashboard_no_open" %}</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+<a href="{% url 'venue:table_grid' %}" class="btn btn-outline-secondary btn-sm">{% t "cart_back" %}</a>
+{% endblock %}

@@ -1,17 +1,47 @@
 :root {
-    --pos-blue: #cfe8fb;
-    --pos-blue-dark: #17395c;
-    --pos-item-bg: #1b2a3d;
+    --luceed-bg: #d7ecfa;
+    --luceed-navy: #0f2138;
+    --luceed-navy-2: #16314d;
+    --luceed-navy-3: #1d3f61;
+    --luceed-border: #4fa8dc;
+    --luceed-selected: #e08a1e;
+    --luceed-text: #eaf4fb;
+    --luceed-green: #3fa34d;
+    --luceed-red: #c0392b;
 }
 
 body {
-    background: #eef4f9;
+    background: var(--luceed-bg);
+    background-image: radial-gradient(circle at 15% 20%, rgba(255,255,255,.35) 0, transparent 40%),
+                       radial-gradient(circle at 85% 75%, rgba(255,255,255,.35) 0, transparent 40%);
+    color: #0f2138;
+}
+
+/* ---- Top tab bar (Stolovi / kategoritë) ---- */
+.pos-topbar {
+    background: var(--luceed-navy);
+    border-bottom: 2px solid var(--luceed-border);
+}
+
+.pos-tab {
+    background: var(--luceed-navy-2);
+    color: var(--luceed-text);
+    border: 1px solid var(--luceed-navy-3);
+    font-weight: 600;
+    font-size: .85rem;
+    padding: .4rem .9rem;
+}
+
+.pos-tab.active, .pos-tab:hover {
+    background: var(--luceed-navy-3);
+    border-color: var(--luceed-border);
+    color: #fff;
 }
 
 /* ---- Stolovi grid ---- */
 .zone-title {
     font-weight: 700;
-    color: var(--pos-blue-dark);
+    color: var(--luceed-navy);
     margin-top: 1rem;
 }
 
@@ -21,56 +51,158 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border-radius: 0.75rem;
+    border-radius: .5rem;
     font-weight: 700;
     font-size: 1.1rem;
-    border: none;
+    border: 2px solid var(--luceed-border);
     color: #fff;
 }
 
 .table-btn.free {
-    background: #3fa34d;
+    background: var(--luceed-green);
 }
 
 .table-btn.occupied {
-    background: #d9534f;
+    background: var(--luceed-red);
 }
 
 .table-btn small {
     font-weight: 400;
-    font-size: 0.7rem;
+    font-size: .7rem;
 }
 
-/* ---- Order screen / menu grid ---- */
+/* ---- Order screen: menu item grid ---- */
 .menu-item-btn {
-    min-height: 70px;
-    background: var(--pos-item-bg);
-    color: #fff;
-    border: 2px solid var(--pos-blue);
-    border-radius: 0.5rem;
-    font-size: 0.85rem;
-    font-weight: 600;
-    padding: 0.4rem;
+    min-height: 68px;
+    background: var(--luceed-navy-2);
+    color: var(--luceed-text);
+    border: 2px solid var(--luceed-border);
+    border-radius: .35rem;
+    font-size: .8rem;
+    font-weight: 700;
+    padding: .35rem;
+    text-transform: uppercase;
 }
 
-.menu-item-btn:active {
-    background: var(--pos-blue-dark);
+.menu-item-btn:hover, .menu-item-btn:active {
+    background: var(--luceed-navy-3);
 }
 
+.menu-item-btn .price {
+    display: block;
+    font-weight: 400;
+    text-transform: none;
+    opacity: .85;
+    font-size: .75rem;
+}
+
+/* ---- Order screen: cart table ---- */
 .cart-panel {
-    background: #fff;
-    border-radius: 0.5rem;
-    min-height: 300px;
+    background: var(--luceed-navy);
+    color: var(--luceed-text);
+    border-radius: .35rem;
+    border: 2px solid var(--luceed-border);
+    overflow: hidden;
 }
 
-.cart-total {
-    font-size: 1.5rem;
+.cart-table {
+    width: 100%;
+    color: var(--luceed-text);
+    font-size: .85rem;
+    margin: 0;
+}
+
+.cart-table thead th {
+    background: var(--luceed-navy-3);
+    color: #fff;
+    font-weight: 700;
+    padding: .4rem .5rem;
+    border-bottom: 1px solid var(--luceed-border);
+}
+
+.cart-table tbody td {
+    padding: .4rem .5rem;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.cart-row {
+    cursor: pointer;
+}
+
+.cart-row:hover {
+    background: rgba(255,255,255,.06);
+}
+
+.cart-row.selected {
+    background: var(--luceed-selected) !important;
+    color: #1a1200;
+}
+
+.cart-header-bar {
+    background: var(--luceed-navy-3);
+    color: #fff;
+    padding: .5rem .75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cart-total-bar {
+    background: #0a1622;
+    color: #fff;
+    padding: .5rem .75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.3rem;
     font-weight: 700;
 }
 
-.action-bar .btn {
-    min-height: 56px;
+/* ---- Order screen: bottom action rows (like Luceed's two button rows) ---- */
+.action-rows {
+    background: var(--luceed-border);
+    border: 2px solid var(--luceed-border);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.action-row {
+    display: flex;
+    gap: 2px;
+}
+
+.pos-btn {
+    flex: 1 1 0;
+    background: var(--luceed-navy-2);
+    color: var(--luceed-text) !important;
+    border: none;
+    padding: .6rem .3rem;
     font-weight: 700;
+    font-size: .78rem;
+    min-height: 52px;
+    text-align: center;
+    text-decoration: none !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pos-btn:hover {
+    background: var(--luceed-navy-3);
+    color: #fff !important;
+}
+
+.pos-btn:disabled {
+    opacity: .4;
+}
+
+.pos-btn.emphasis {
+    background: var(--luceed-navy-3);
+}
+
+.pos-btn.narrow {
+    flex: 0 0 15%;
 }
 
 /* ---- Print (80mm receipt) ---- */

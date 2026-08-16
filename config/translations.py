@@ -29,12 +29,16 @@ TRANSLATIONS = {
     "table_free": {"hr": "slobodan", "en": "free", "sq": "e lirë"},
     "table_occupied": {"hr": "zauzet", "en": "occupied", "sq": "e zënë"},
 
+    "col_item_name": {"hr": "Naziv artikla", "en": "Item name", "sq": "Emri i artikullit"},
+    "col_qty": {"hr": "Količina", "en": "Qty", "sq": "Sasia"},
+    "col_amount": {"hr": "Iznos", "en": "Amount", "sq": "Shuma"},
+
     "cart_back": {"hr": "← Stolovi", "en": "← Tables", "sq": "← Stolovi"},
     "cart_empty": {"hr": "Još nema stavki.", "en": "No items yet.", "sq": "Ende s'ka artikuj."},
     "cart_total": {"hr": "Ukupno", "en": "Total", "sq": "Total"},
     "cart_sent_to_bar": {"hr": "poslano šanku", "en": "sent to bar", "sq": "te bari"},
     "cart_print_shank": {"hr": "🖨 Šank", "en": "🖨 Bar ticket", "sq": "🖨 Shank"},
-    "cart_print_predracun": {"hr": "🖨 Predračun", "en": "🖨 Pro-forma bill", "sq": "🖨 Predračun"},
+    "cart_print_predracun": {"hr": "Predračun", "en": "Pro-forma bill", "sq": "Predračun"},
     "cart_close_order": {"hr": "Zaključi narudžbu", "en": "Close order", "sq": "Mbyll porosinë"},
     "cart_cancel_confirm": {
         "hr": "Otkažeš cijeli stol?",
@@ -42,6 +46,15 @@ TRANSLATIONS = {
         "sq": "Anulo krejt porosinë e stolit?",
     },
     "cart_cancel_table": {"hr": "Otkaži stol", "en": "Cancel table", "sq": "Anulo stolin"},
+
+    "action_open_table": {"hr": "Otvori stol", "en": "Open table", "sq": "Hap stolin"},
+    "action_delete_item": {"hr": "Obriši stavku", "en": "Delete item", "sq": "Fshi artikullin"},
+    "action_cash_state": {"hr": "Stanje kase", "en": "Cash state", "sq": "Gjendja e arkës"},
+    "select_item_first": {
+        "hr": "Prvo odaberi stavku na popisu.",
+        "en": "Select an item from the list first.",
+        "sq": "Zgjidh një artikull nga lista fillimisht.",
+    },
 
     "close_title": {"hr": "Zaključi narudžbu — Stol", "en": "Close order — Table", "sq": "Mbyll porosinë — Stoli"},
     "close_total": {"hr": "Ukupno:", "en": "Total:", "sq": "Total:"},
@@ -122,6 +135,13 @@ TRANSLATIONS = {
     "sales_by_waiter": {"hr": "Prodaja po konobaru", "en": "Sales by waiter", "sq": "Shitje sipas konobarit"},
     "sales_orders": {"hr": "Stolova", "en": "Orders", "sq": "Stolove"},
     "sales_qty_sold_axis": {"hr": "Prodanih artikala", "en": "Items sold", "sq": "Artikuj të shitur"},
+
+    "cash_state_title": {"hr": "Stanje kase", "en": "Cash state", "sq": "Gjendja e arkës"},
+    "cash_state_today": {"hr": "Danas", "en": "Today", "sq": "Sot"},
+    "cash_state_your_closed": {"hr": "Tvoji zaključeni stolovi", "en": "Your closed tables", "sq": "Stolovet e tua të mbyllura"},
+    "cash_state_cash": {"hr": "Gotovina", "en": "Cash", "sq": "Para në dorë"},
+    "cash_state_card": {"hr": "Kartica", "en": "Card", "sq": "Kartë"},
+    "cash_state_total": {"hr": "Ukupno", "en": "Total", "sq": "Total"},
 }
 
 

@@ -129,3 +129,19 @@ def print_predracun(request, order_id):
 def print_racun(request, order_id):
     order = get_object_or_404(Order, pk=order_id, status=Order.CLOSED)
     return render(request, "orders/print_racun.html", {"order": order})
+
+
+@login_required
+def cash_state(request):
+    today = timezone.localdate()
+    orders_today = Order.objects.filter(
+        waiter=request.user, status=Order.CLOSED, closed_at__date=today
+    )
+    cash_total = sum((o.total for o in orders_today.filter(payment_method=Order.CASH)), 0)
+    card_total = sum((o.total for o in orders_today.filter(payment_method=Order.CARD)), 0)
+    return render(request, "orders/cash_state.html", {
+        "orders_today": orders_today,
+        "cash_total": cash_total,
+        "card_total": card_total,
+        "grand_total": cash_total + card_total,
+    })
