@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n_extras %}
 {% block title %}Stolovi — Caffe MiK{% endblock %}
 {% block content %}
 {% for zone in zones %}
@@ -14,7 +15,7 @@
                             class="table-btn w-100 h-100 {% if table.is_occupied %}occupied{% else %}free{% endif %}">
                         <span>{{ table.label }}</span>
                         <small id="table-info-{{ table.id }}">
-                            {% if table.is_occupied %}e zënë{% else %}e lirë{% endif %}
+                            {% if table.is_occupied %}{% t "table_occupied" %}{% else %}{% t "table_free" %}{% endif %}
                         </small>
                     </button>
                 </form>
@@ -26,6 +27,7 @@
 
 <script>
 const STATUS_URL = "{% url 'venue:table_status_json' %}";
+const FREE_LABEL = "{% t 'table_free' %}";
 
 async function refreshTables() {
     try {
@@ -42,7 +44,7 @@ async function refreshTables() {
             } else {
                 btn.classList.remove("occupied");
                 btn.classList.add("free");
-                infoEl.textContent = "e lirë";
+                infoEl.textContent = FREE_LABEL;
             }
         }
     } catch (e) {

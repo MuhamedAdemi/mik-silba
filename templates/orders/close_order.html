@@ -1,24 +1,25 @@
 {% extends "base.html" %}
 {% load menu_extras %}
+{% load i18n_extras %}
 {% block title %}Zaključi — Stol {{ order.table.label }}{% endblock %}
 {% block content %}
 <div class="d-flex justify-content-center">
     <div class="card shadow-sm" style="width: 100%; max-width: 420px;">
         <div class="card-body p-4">
-            <h1 class="h4">Zaključi narudžbu — Stol {{ order.table.label }}</h1>
-            <p class="cart-total">Total: {{ order.total|eur }}</p>
+            <h1 class="h4">{% t "close_title" %} {{ order.table.label }}</h1>
+            <p class="cart-total">{% t "close_total" %} {{ order.total|eur }}</p>
             {% if not order.items.exists %}
-                <div class="alert alert-warning">Stoli s'ka artikuj, nuk mund të mbyllet.</div>
+                <div class="alert alert-warning">{% t "close_no_items" %}</div>
             {% endif %}
             <form method="post">
                 {% csrf_token %}
-                <label class="form-label fw-bold">Mënyra e pagesës</label>
+                <label class="form-label fw-bold">{% t "close_payment_method" %}</label>
                 <div class="d-grid gap-2 mb-3">
-                    <button type="submit" name="payment_method" value="CASH" class="btn btn-outline-success py-3 fw-bold">Gotovina</button>
-                    <button type="submit" name="payment_method" value="CARD" class="btn btn-outline-primary py-3 fw-bold">Kartica</button>
+                    <button type="submit" name="payment_method" value="CASH" class="btn btn-outline-success py-3 fw-bold">{% t "close_cash" %}</button>
+                    <button type="submit" name="payment_method" value="CARD" class="btn btn-outline-primary py-3 fw-bold">{% t "close_card" %}</button>
                 </div>
             </form>
-            <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-link">← Kthehu te stoli</a>
+            <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-link">{% t "close_back" %}</a>
         </div>
     </div>
 </div>

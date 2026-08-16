@@ -1,16 +1,17 @@
 {% extends "base.html" %}
+{% load i18n_extras %}
 {% block title %}Shank — Stol {{ order.table.label }}{% endblock %}
 {% block navbar %}{% endblock %}
 {% block content %}
 <div class="no-print d-flex gap-2 justify-content-center mb-3">
-    <button class="btn btn-primary" onclick="window.print()">🖨 Printo</button>
+    <button class="btn btn-primary" onclick="window.print()">{% t "print_button" %}</button>
     {% if items %}
     <form method="post">
         {% csrf_token %}
-        <button type="submit" class="btn btn-success">Konfirmo dërgimin te bari</button>
+        <button type="submit" class="btn btn-success">{% t "shank_confirm_send" %}</button>
     </form>
     {% endif %}
-    <a class="btn btn-outline-secondary" href="{% url 'orders:order_detail' order.id %}">← Kthehu</a>
+    <a class="btn btn-outline-secondary" href="{% url 'orders:order_detail' order.id %}">{% t "back" %}</a>
 </div>
 
 <div class="receipt">
@@ -28,7 +29,7 @@
             </tbody>
         </table>
     {% else %}
-        <p class="text-center">Të gjithë artikujt janë dërguar tashmë te bari.</p>
+        <p class="text-center">{% t "shank_all_sent" %}</p>
     {% endif %}
 </div>
 {% endblock %}

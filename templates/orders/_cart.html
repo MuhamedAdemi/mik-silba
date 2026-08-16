@@ -1,11 +1,12 @@
 {% load menu_extras %}
+{% load i18n_extras %}
 <div class="cart-panel p-3 shadow-sm">
     <div class="d-flex justify-content-between align-items-start mb-2">
         <div>
             <div class="h5 mb-0">STOL {{ order.table.label }}</div>
             <div class="small text-muted">{{ order.waiter.profile.display_name|default:order.waiter.username }}</div>
         </div>
-        <a href="{% url 'venue:table_grid' %}" class="btn btn-sm btn-outline-secondary no-print">← Stolovi</a>
+        <a href="{% url 'venue:table_grid' %}" class="btn btn-sm btn-outline-secondary no-print">{% t "cart_back" %}</a>
     </div>
 
     <div style="max-height: 45vh; overflow-y: auto;">
@@ -15,7 +16,7 @@
                 <tr>
                     <td>
                         {{ item.menu_item.name }}
-                        {% if item.sent_to_bar_at %}<span class="badge bg-secondary">te bari</span>{% endif %}
+                        {% if item.sent_to_bar_at %}<span class="badge bg-secondary">{% t "cart_sent_to_bar" %}</span>{% endif %}
                     </td>
                     <td class="text-nowrap no-print">
                         <button class="btn btn-sm btn-outline-danger" hx-post="{% url 'orders:decrement_item' order.id item.id %}" hx-target="#cart-panel">−</button>
@@ -29,7 +30,7 @@
                     </td>
                 </tr>
             {% empty %}
-                <tr><td class="text-muted">Ende s'ka artikuj.</td></tr>
+                <tr><td class="text-muted">{% t "cart_empty" %}</td></tr>
             {% endfor %}
             </tbody>
         </table>
@@ -37,22 +38,23 @@
 
     <hr>
     <div class="d-flex justify-content-between cart-total">
-        <span>Total</span>
+        <span>{% t "cart_total" %}</span>
         <span>{{ order.total|eur }}</span>
     </div>
 
     <div class="action-bar d-grid gap-2 mt-3 no-print">
         <div class="d-flex gap-2">
             <a class="btn btn-outline-primary flex-fill" target="_blank"
-               href="{% url 'orders:print_shank' order.id %}">🖨 Shank</a>
+               href="{% url 'orders:print_shank' order.id %}">{% t "cart_print_shank" %}</a>
             <a class="btn btn-outline-primary flex-fill" target="_blank"
-               href="{% url 'orders:print_predracun' order.id %}">🖨 Predračun</a>
+               href="{% url 'orders:print_predracun' order.id %}">{% t "cart_print_predracun" %}</a>
         </div>
-        <a class="btn btn-success" href="{% url 'orders:close_order' order.id %}">Zaključi narudžbu</a>
+        <a class="btn btn-success" href="{% url 'orders:close_order' order.id %}">{% t "cart_close_order" %}</a>
+        {% t "cart_cancel_confirm" as cancel_confirm_msg %}
         <form method="post" action="{% url 'orders:cancel_order' order.id %}"
-              onsubmit="return confirm('Anulo krejt porosinë e stolit?');">
+              onsubmit="return confirm('{{ cancel_confirm_msg|escapejs }}');">
             {% csrf_token %}
-            <button type="submit" class="btn btn-outline-danger w-100">Anulo stolin</button>
+            <button type="submit" class="btn btn-outline-danger w-100">{% t "cart_cancel_table" %}</button>
         </form>
     </div>
 </div>

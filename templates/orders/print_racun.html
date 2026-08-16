@@ -1,18 +1,19 @@
 {% extends "base.html" %}
 {% load menu_extras %}
+{% load i18n_extras %}
 {% block title %}Račun — Stol {{ order.table.label }}{% endblock %}
 {% block navbar %}{% endblock %}
 {% block content %}
 <div class="no-print d-flex gap-2 justify-content-center mb-3">
-    <button class="btn btn-primary" onclick="window.print()">🖨 Printo</button>
-    <a class="btn btn-outline-secondary" href="{% url 'venue:table_grid' %}">← Stolovi</a>
+    <button class="btn btn-primary" onclick="window.print()">{% t "print_button" %}</button>
+    <a class="btn btn-outline-secondary" href="{% url 'venue:table_grid' %}">{% t "cart_back" %}</a>
 </div>
 
 <div class="receipt">
     <h4 class="text-center mb-0">Caffe MiK</h4>
-    <p class="text-center small mb-1">RAČUN (interni) — nuk është faturë fiskale</p>
+    <p class="text-center small mb-1">{% t "racun_label" %}</p>
     <p class="text-center mb-1">STOL {{ order.table.label }} · {{ order.closed_at|date:"d.m.Y H:i" }}</p>
-    <p class="text-center small mb-1">Konobar: {{ order.waiter.profile.display_name|default:order.waiter.username }}</p>
+    <p class="text-center small mb-1">{% t "racun_waiter" %} {{ order.waiter.profile.display_name|default:order.waiter.username }}</p>
     <hr>
     <table class="table table-sm">
         <tbody>
@@ -26,9 +27,9 @@
     </table>
     <hr>
     <div class="d-flex justify-content-between fw-bold fs-5">
-        <span>TOTAL</span>
+        <span>{% t "total_caps" %}</span>
         <span>{{ order.total|eur }}</span>
     </div>
-    <p class="text-center mt-2">Pagesa: {{ order.get_payment_method_display }}</p>
+    <p class="text-center mt-2">{% t "racun_payment" %} {% if order.payment_method == "CASH" %}{% t "close_cash" %}{% else %}{% t "close_card" %}{% endif %}</p>
 </div>
 {% endblock %}

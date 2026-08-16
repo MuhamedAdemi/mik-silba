@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 {% load static %}
-<html lang="hr">
+{% load i18n_extras %}
+<html lang="{{ LANG }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -14,15 +15,24 @@
 {% block navbar %}
 <nav class="navbar navbar-dark bg-dark px-3 no-print">
     <a class="navbar-brand fw-bold" href="{% url 'venue:table_grid' %}">☕ Caffe MiK</a>
-    <div class="d-flex align-items-center gap-3 text-white">
+    <div class="d-flex align-items-center gap-2 text-white">
+        <div class="btn-group btn-group-sm me-2" role="group">
+            {% for code, label in AVAILABLE_LANGUAGES %}
+                <form method="post" action="{% url 'accounts:set_language' code %}" class="m-0">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button type="submit" class="btn btn-sm {% if LANG == code %}btn-light{% else %}btn-outline-light{% endif %}">{{ label }}</button>
+                </form>
+            {% endfor %}
+        </div>
         {% if user.is_authenticated %}
             {% if user.profile.is_admin %}
-                <a class="text-white text-decoration-none" href="{% url 'reports:dashboard' %}">Raporte</a>
+                <a class="text-white text-decoration-none me-2" href="{% url 'reports:dashboard' %}">{% t "nav_reports" %}</a>
             {% endif %}
-            <span class="small">{{ user.profile.display_name|default:user.username }}</span>
+            <span class="small me-2">{{ user.profile.display_name|default:user.username }}</span>
             <form method="post" action="{% url 'accounts:logout' %}" class="m-0">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-outline-light btn-sm">Odjava</button>
+                <button type="submit" class="btn btn-outline-light btn-sm">{% t "nav_logout" %}</button>
             </form>
         {% endif %}
     </div>
