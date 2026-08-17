@@ -10,10 +10,6 @@
 </div>
 
 <div class="receipt">
-    {% include "orders/_receipt_business_header.html" %}
-    <p class="text-center small mb-1 fw-bold">{% t "predracun_label" %}</p>
-    <p class="text-center mb-1">STOL {{ order.table.label }} · {% now "d.m.Y H:i" %}</p>
-    <hr>
     <table class="table table-sm">
         <tbody>
         {% for item in order.items.all %}
@@ -24,11 +20,5 @@
         {% endfor %}
         </tbody>
     </table>
-    <hr>
-    <div class="d-flex justify-content-between fw-bold fs-5">
-        <span>{% t "total_caps" %}</span>
-        <span>{{ order.total|eur }}</span>
-    </div>
-    {% include "orders/_receipt_barcode.html" %}
 </div>
 {% endblock %}

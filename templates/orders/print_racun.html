@@ -10,11 +10,6 @@
 </div>
 
 <div class="receipt">
-    {% include "orders/_receipt_business_header.html" %}
-    <p class="text-center small mb-1 fw-bold">{% t "racun_label" %}</p>
-    <p class="text-center mb-1">STOL {{ order.table.label }} · {{ order.closed_at|date:"d.m.Y H:i" }}</p>
-    <p class="text-center small mb-1">{% t "racun_waiter" %} {{ order.waiter.profile.display_name|default:order.waiter.username }}</p>
-    <hr>
     <table class="table table-sm">
         <tbody>
         {% for item in order.items.all %}
@@ -25,12 +20,5 @@
         {% endfor %}
         </tbody>
     </table>
-    <hr>
-    <div class="d-flex justify-content-between fw-bold fs-5">
-        <span>{% t "total_caps" %}</span>
-        <span>{{ order.total|eur }}</span>
-    </div>
-    <p class="text-center mt-2">{% t "racun_payment" %} {% if order.payment_method == "CASH" %}{% t "close_cash" %}{% else %}{% t "close_card" %}{% endif %}</p>
-    {% include "orders/_receipt_barcode.html" %}
 </div>
 {% endblock %}
