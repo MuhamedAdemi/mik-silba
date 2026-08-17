@@ -9,6 +9,7 @@ from pathlib import Path
 
 import environ
 from django.contrib.messages import constants as message_constants
+from django.db.backends.signals import connection_created
 
 # config/settings/base.py -> project root is three parents up.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -94,3 +95,20 @@ LOGOUT_REDIRECT_URL = "accounts:login"
 MESSAGE_TAGS = {
     message_constants.ERROR: "danger",
 }
+
+
+def _tune_sqlite(sender, connection, **kwargs):
+    """WAL mode lets reads and writes happen concurrently instead of
+    blocking each other, and busy_timeout makes a write that arrives during
+    another write wait a couple seconds and retry instead of immediately
+    raising 'database is locked' — matters here since several staff devices
+    can hit the same SQLite file at once."""
+    if connection.vendor != "sqlite":
+        return
+    with connection.cursor() as cursor:
+        cursor.execute("PRAGMA journal_mode=WAL;")
+        cursor.execute("PRAGMA synchronous=NORMAL;")
+        cursor.execute("PRAGMA busy_timeout=5000;")
+
+
+connection_created.connect(_tune_sqlite)
