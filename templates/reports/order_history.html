@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load menu_extras %}
+{% load i18n_extras %}
+{% block title %}{% t "history_title" %} — Caffe MiK{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">{% t "history_title" %}</h1>
+    <a href="{% url 'reports:dashboard' %}" class="btn btn-outline-secondary btn-sm">{% t "sales_live_link" %}</a>
+</div>
+
+<form method="get" class="row row-cols-auto g-2 align-items-end mb-4">
+    <div class="col">
+        <label class="form-label small">{% t "sales_from" %}</label>
+        <input type="date" name="nga" value="{{ date_from }}" class="form-control form-control-sm">
+    </div>
+    <div class="col">
+        <label class="form-label small">{% t "sales_to" %}</label>
+        <input type="date" name="deri" value="{{ date_to }}" class="form-control form-control-sm">
+    </div>
+    <div class="col">
+        <label class="form-label small">{% t "history_search_table" %}</label>
+        <input type="text" name="stoli" value="{{ table_query }}" placeholder="{% t 'history_search_placeholder' %}" class="form-control form-control-sm" style="width: 8rem;">
+    </div>
+    <div class="col">
+        <button type="submit" class="btn btn-primary btn-sm">{% t "sales_filter" %}</button>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-sm table-striped align-middle">
+        <thead>
+        <tr>
+            <th>{% t "dashboard_table" %}</th>
+            <th>{% t "dashboard_zone" %}</th>
+            <th>{% t "dashboard_waiter" %}</th>
+            <th>{% t "history_closed_at" %}</th>
+            <th>{% t "history_status" %}</th>
+            <th class="text-end">{% t "cart_total" %}</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for order in orders %}
+            <tr class="{% if order.status == 'CANCELLED' %}text-muted{% endif %}">
+                <td>{{ order.table.label }}</td>
+                <td>{{ order.table.zone.name }}</td>
+                <td>{{ order.waiter.profile.display_name|default:order.waiter.username }}</td>
+                <td>{{ order.closed_at|date:"d.m.Y H:i" }}</td>
+                <td>
+                    {% if order.status == "CLOSED" %}
+                        <span class="badge bg-success">{% t "history_closed" %}</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{% t "history_cancelled" %}</span>
+                    {% endif %}
+                </td>
+                <td class="text-end">{{ order.total|eur }}</td>
+                <td><a href="{% url 'reports:order_history_detail' order.id %}" class="btn btn-sm btn-outline-secondary">{% t "history_view" %}</a></td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="7" class="text-muted">{% t "history_no_results" %}</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

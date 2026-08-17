@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.db.models import Count, DecimalField, F, Sum
 from django.db.models.functions import ExtractHour
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 
 from accounts.decorators import admin_required
@@ -90,3 +90,40 @@ def sales_report(request):
         "busy_hours_chart": busy_hours_chart,
         "busy_hours_labels": list(range(24)),
     })
+
+
+@admin_required
+def order_history(request):
+    today = timezone.localdate().isoformat()
+    date_from = request.GET.get("nga") or today
+    date_to = request.GET.get("deri") or today
+    table_query = request.GET.get("stoli", "").strip()
+
+    orders = (
+        Order.objects.filter(
+            status__in=[Order.CLOSED, Order.CANCELLED],
+            closed_at__date__gte=date_from,
+            closed_at__date__lte=date_to,
+        )
+        .select_related("table", "table__zone", "waiter")
+        .order_by("-closed_at")
+    )
+    if table_query:
+        orders = orders.filter(table__label__icontains=table_query)
+
+    return render(request, "reports/order_history.html", {
+        "orders": orders,
+        "date_from": date_from,
+        "date_to": date_to,
+        "table_query": table_query,
+    })
+
+
+@admin_required
+def order_history_detail(request, order_id):
+    order = get_object_or_404(
+        Order.objects.select_related("table", "table__zone", "waiter"),
+        pk=order_id,
+        status__in=[Order.CLOSED, Order.CANCELLED],
+    )
+    return render(request, "reports/order_history_detail.html", {"order": order})

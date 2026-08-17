@@ -19,6 +19,7 @@
         <a href="{% url 'venue:table_grid' %}" class="pos-tab text-decoration-none active">{{ "Stolovi" }}</a>
         {% if user.is_authenticated and user.profile.is_admin %}
             <a href="{% url 'reports:dashboard' %}" class="pos-tab text-decoration-none">{% t "nav_reports" %}</a>
+            <a href="{% url 'reports:order_history' %}" class="pos-tab text-decoration-none">{% t "nav_history" %}</a>
             <a href="{% url 'accounts:staff_list' %}" class="pos-tab text-decoration-none">{% t "nav_staff" %}</a>
         {% endif %}
     </div>

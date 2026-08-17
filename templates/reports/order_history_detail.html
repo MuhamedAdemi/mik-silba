@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load menu_extras %}
+{% load i18n_extras %}
+{% block title %}Stol {{ order.table.label }} — {% t "history_title" %}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">STOL {{ order.table.label }} · {{ order.table.zone.name }}</h1>
+    <a href="{% url 'reports:order_history' %}" class="btn btn-outline-secondary btn-sm">{% t "history_back" %}</a>
+</div>
+
+<div class="mb-3">
+    <div>{% t "dashboard_waiter" %}: {{ order.waiter.profile.display_name|default:order.waiter.username }}</div>
+    <div>{% t "history_opened" %}: {{ order.opened_at|date:"d.m.Y H:i" }}</div>
+    <div>{% t "history_closed_at" %}: {{ order.closed_at|date:"d.m.Y H:i"|default:"—" }}</div>
+    <div>
+        {% t "history_status" %}:
+        {% if order.status == "CLOSED" %}
+            <span class="badge bg-success">{% t "history_closed" %}</span> · {% t "close_payment_method" %}:
+            {% if order.payment_method == "CASH" %}{% t "close_cash" %}{% else %}{% t "close_card" %}{% endif %}
+        {% else %}
+            <span class="badge bg-secondary">{% t "history_cancelled" %}</span>
+        {% endif %}
+    </div>
+</div>
+
+<table class="table table-sm">
+    <thead>
+    <tr>
+        <th>{% t "col_item_name" %}</th>
+        <th class="text-end">{% t "col_qty" %}</th>
+        <th class="text-end">{% t "col_amount" %}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in order.items.all %}
+        <tr>
+            <td>{{ item.menu_item.name }}</td>
+            <td class="text-end">{{ item.quantity }}</td>
+            <td class="text-end">{{ item.subtotal|eur }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="3" class="text-muted">{% t "cart_empty" %}</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+<div class="d-flex justify-content-between fw-bold fs-5 border-top pt-2">
+    <span>{% t "cart_total" %}</span>
+    <span>{{ order.total|eur }}</span>
+</div>
+
+{% if order.status == "CLOSED" %}
+    <a class="btn btn-outline-primary btn-sm mt-3" target="_blank" href="{% url 'orders:print_racun' order.id %}">{% t "print_button" %}</a>
+{% endif %}
+{% endblock %}

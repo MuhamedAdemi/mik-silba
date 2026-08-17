@@ -17,6 +17,22 @@ TRANSLATIONS = {
     "nav_reports": {"hr": "Izvještaji", "en": "Reports", "sq": "Raportet"},
     "nav_logout": {"hr": "Odjava", "en": "Log out", "sq": "Dilni"},
     "nav_staff": {"hr": "Osoblje", "en": "Staff", "sq": "Stafi"},
+    "nav_history": {"hr": "Povijest", "en": "History", "sq": "Historiku"},
+
+    "history_title": {"hr": "Povijest stolova", "en": "Table history", "sq": "Historiku i tavolinave"},
+    "history_search_table": {"hr": "Stol", "en": "Table", "sq": "Stoli"},
+    "history_search_placeholder": {"hr": "npr. A1", "en": "e.g. A1", "sq": "p.sh. A1"},
+    "history_status": {"hr": "Status", "en": "Status", "sq": "Statusi"},
+    "history_closed": {"hr": "zaključen", "en": "closed", "sq": "mbyllur"},
+    "history_cancelled": {"hr": "otkazan", "en": "cancelled", "sq": "anuluar"},
+    "history_view": {"hr": "Pogledaj", "en": "View", "sq": "Shiko"},
+    "history_no_results": {
+        "hr": "Nema stolova u ovom razdoblju/pretrazi.",
+        "en": "No tables in this period/search.",
+        "sq": "Nuk ka tavolina në këtë periudhë/kërkim.",
+    },
+    "history_opened": {"hr": "Otvoren", "en": "Opened", "sq": "Hapur"},
+    "history_closed_at": {"hr": "Zatvoren", "en": "Closed", "sq": "Mbyllur"},
 
     "staff_title": {"hr": "Osoblje", "en": "Staff", "sq": "Stafi"},
     "staff_add": {"hr": "Dodaj osoblje", "en": "Add staff", "sq": "Shto staf"},
