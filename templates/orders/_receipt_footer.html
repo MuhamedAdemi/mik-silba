@@ -1,0 +1,15 @@
+<div class="receipt-footer">
+    <svg id="receipt-barcode-{{ order.id }}"></svg>
+    <div class="thanks">Hvala! / Thank you</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<script>
+JsBarcode("#receipt-barcode-{{ order.id }}", "MIK{{ order.id }}", {
+    format: "CODE128",
+    width: 1.4,
+    height: 36,
+    displayValue: true,
+    fontSize: 11,
+    margin: 0,
+});
+</script>

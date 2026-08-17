@@ -10,6 +10,7 @@
 </div>
 
 <div class="receipt">
+    {% include "orders/_receipt_header.html" %}
     <table class="table table-sm">
         <tbody>
         {% for item in order.items.all %}
@@ -31,5 +32,6 @@
         <span>{% t "total_caps" %}</span>
         <span>{{ order.total|eur }}</span>
     </div>
+    {% include "orders/_receipt_footer.html" %}
 </div>
 {% endblock %}
