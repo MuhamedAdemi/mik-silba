@@ -14,11 +14,22 @@
         <tbody>
         {% for item in order.items.all %}
             <tr>
-                <td>{{ item.quantity }} x {{ item.menu_item.name }}</td>
-                <td class="text-end">{{ item.subtotal|eur }}</td>
+                <td>{{ item.menu_item.name }}</td>
+                <td class="text-end">
+                    {% if item.quantity > 1 %}
+                        {{ item.quantity }} x {{ item.unit_price|eur }} = {{ item.subtotal|eur }}
+                    {% else %}
+                        {{ item.subtotal|eur }}
+                    {% endif %}
+                </td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
+    <hr>
+    <div class="d-flex justify-content-between fw-bold fs-5">
+        <span>{% t "total_caps" %}</span>
+        <span>{{ order.total|eur }}</span>
+    </div>
 </div>
 {% endblock %}
