@@ -210,11 +210,21 @@ body {
     display: block;
 }
 
+@page {
+    /* Without an explicit page size, some thermal-printer drivers treat the
+       page height as a huge default (this is what was feeding ~3 metres of
+       blank paper) instead of reading it as a short continuous-roll strip.
+       "auto" height tells the browser to size the page to the content. */
+    size: 80mm auto;
+    margin: 0;
+}
+
 @media print {
     .no-print {
         display: none !important;
     }
-    body {
+    html, body {
+        width: 80mm;
         background: #fff;
     }
     .receipt {
