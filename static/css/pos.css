@@ -239,6 +239,7 @@ body {
     }
     .receipt {
         width: 80mm;
+        max-width: 80mm;
         font-family: "Courier New", monospace;
         font-size: 14px;
     }
@@ -248,8 +249,18 @@ body {
     max-width: 80mm;
     margin: 0 auto;
     font-family: "Courier New", monospace;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+/* On a phone screen (not print), let the receipt use the full width
+   instead of sitting as a narrow ~80mm column with empty space on both
+   sides — desktop keeps the narrower, print-preview-like column. */
+@media screen and (max-width: 480px) {
+    .receipt {
+        max-width: 100%;
+        padding: 0 .5rem;
+    }
 }
 
 .receipt hr {
