@@ -174,6 +174,23 @@ TRANSLATIONS = {
     "cash_state_cash": {"hr": "Gotovina", "en": "Cash", "sq": "Para në dorë"},
     "cash_state_card": {"hr": "Kartica", "en": "Card", "sq": "Kartë"},
     "cash_state_total": {"hr": "Ukupno", "en": "Total", "sq": "Total"},
+    "cash_state_float": {"hr": "Polog", "en": "Starting float", "sq": "Polog"},
+    "cash_state_float_prompt": {
+        "hr": "Unesi polog s kojim počinješ smjenu (obično 100 €).",
+        "en": "Enter the starting float for your shift (usually 100 €).",
+        "sq": "Vendos pologun me të cilin fillon ndrrimin (zakonisht 100 €).",
+    },
+    "cash_state_float_change": {"hr": "Promijeni polog", "en": "Change float", "sq": "Ndrysho pologun"},
+    "cash_state_expected_drawer": {"hr": "Očekivano u ladici", "en": "Expected in drawer", "sq": "Në sirtar (pritshëm)"},
+
+    "move_table_title": {"hr": "Premjesti stol", "en": "Move table", "sq": "Zhvendos tavolinën"},
+    "move_table_button": {"hr": "↔ Premjesti stol", "en": "↔ Move table", "sq": "↔ Zhvendos tavolinën"},
+    "move_table_pick_prompt": {
+        "hr": "Odaberi novi stol (samo slobodni)",
+        "en": "Pick a new table (free ones only)",
+        "sq": "Zgjidh tavolinën e re (vetëm të lira)",
+    },
+    "move_table_current": {"hr": "Trenutni stol", "en": "Current table", "sq": "Tavolina aktuale"},
 }
 
 

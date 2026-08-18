@@ -3,11 +3,12 @@ from decimal import Decimal
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from menu.models import Category, MenuItem
 from venue.models import Table, Zone
 
-from .models import Order, OrderItem
+from .models import CashFloat, Order, OrderItem
 
 
 class OrderModelTests(TestCase):
@@ -118,3 +119,89 @@ class HtmxCsrfTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertTrue(OrderItem.objects.filter(order=self.order, menu_item=self.item).exists())
+
+
+class CashStateTests(TestCase):
+    def setUp(self):
+        self.waiter = User.objects.create_user("konobar1", password="pass12345")
+        zone = Zone.objects.create(name="Terasa A", order=1)
+        self.table = Table.objects.create(zone=zone, label="A1", order=1)
+        today = timezone.localdate()
+        self.cash_order = Order.objects.create(
+            table=self.table, waiter=self.waiter, status=Order.CLOSED,
+            payment_method=Order.CASH, closed_at=timezone.now(),
+        )
+        category = Category.objects.create(name="Napici+Sok", order=1)
+        item = MenuItem.objects.create(category=category, name="Cappuccino", price=Decimal("2.30"))
+        OrderItem.objects.create(order=self.cash_order, menu_item=item, quantity=2, unit_price=Decimal("2.30"))
+        self.client.login(username="konobar1", password="pass12345")
+
+    def test_no_float_set_shows_prompt_and_no_expected_drawer(self):
+        response = self.client.get(reverse("orders:cash_state"))
+        self.assertIsNone(response.context["cash_float"])
+        self.assertIsNone(response.context["expected_drawer"])
+
+    def test_setting_float_creates_record_for_today(self):
+        self.client.post(reverse("orders:cash_state"), {"float_amount": "100"})
+        today = timezone.localdate()
+        cash_float = CashFloat.objects.get(waiter=self.waiter, date=today)
+        self.assertEqual(cash_float.amount, Decimal("100"))
+
+    def test_expected_drawer_is_float_plus_cash_sales(self):
+        self.client.post(reverse("orders:cash_state"), {"float_amount": "100"})
+        response = self.client.get(reverse("orders:cash_state"))
+        # 2 x 2.30 = 4.60 cash sales + 100 float
+        self.assertEqual(response.context["expected_drawer"], Decimal("104.60"))
+        self.assertEqual(response.context["cash_total"], Decimal("4.60"))
+
+    def test_updating_float_overwrites_same_day_record(self):
+        self.client.post(reverse("orders:cash_state"), {"float_amount": "100"})
+        self.client.post(reverse("orders:cash_state"), {"float_amount": "150"})
+        today = timezone.localdate()
+        self.assertEqual(CashFloat.objects.filter(waiter=self.waiter, date=today).count(), 1)
+        self.assertEqual(CashFloat.objects.get(waiter=self.waiter, date=today).amount, Decimal("150"))
+
+    def test_invalid_float_amount_is_rejected(self):
+        self.client.post(reverse("orders:cash_state"), {"float_amount": "abc"})
+        today = timezone.localdate()
+        self.assertFalse(CashFloat.objects.filter(waiter=self.waiter, date=today).exists())
+
+
+class MoveTableTests(TestCase):
+    def setUp(self):
+        self.waiter = User.objects.create_user("konobar1", password="pass12345")
+        zone = Zone.objects.create(name="Terasa A", order=1)
+        self.table_a1 = Table.objects.create(zone=zone, label="A1", order=1)
+        self.table_a2 = Table.objects.create(zone=zone, label="A2", order=2)
+        self.order = Order.objects.create(table=self.table_a1, waiter=self.waiter)
+        category = Category.objects.create(name="Napici+Sok", order=1)
+        item = MenuItem.objects.create(category=category, name="Cappuccino", price=Decimal("2.50"))
+        OrderItem.objects.create(order=self.order, menu_item=item, quantity=1, unit_price=Decimal("2.50"))
+        self.client.login(username="konobar1", password="pass12345")
+
+    def test_move_to_free_table_updates_order_and_frees_old_table(self):
+        response = self.client.post(reverse("orders:move_table", args=[self.order.id, self.table_a2.id]))
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.table_id, self.table_a2.id)
+        self.assertFalse(self.table_a1.is_occupied)
+        self.assertRedirects(response, reverse("orders:order_detail", args=[self.order.id]))
+
+    def test_move_preserves_order_items(self):
+        self.client.post(reverse("orders:move_table", args=[self.order.id, self.table_a2.id]))
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.items.count(), 1)
+        self.assertEqual(self.order.total, Decimal("2.50"))
+
+    def test_cannot_move_to_occupied_table(self):
+        other_waiter = User.objects.create_user("konobar2", password="x")
+        Order.objects.create(table=self.table_a2, waiter=other_waiter)
+
+        self.client.post(reverse("orders:move_table", args=[self.order.id, self.table_a2.id]))
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.table_id, self.table_a1.id)
+
+    def test_move_picker_shows_current_table_and_free_tables(self):
+        response = self.client.get(reverse("orders:move_table_picker", args=[self.order.id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "A1")
+        self.assertContains(response, "A2")

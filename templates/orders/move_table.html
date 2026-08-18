@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load i18n_extras %}
+{% block title %}{% t "move_table_title" %} — Caffe MiK{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">{% t "move_table_title" %}</h1>
+    <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-outline-secondary btn-sm">{% t "back" %}</a>
+</div>
+<p class="text-muted">{% t "move_table_pick_prompt" %} — {% t "move_table_current" %}: <strong>{{ order.table.label }}</strong></p>
+
+{% for zone in zones %}
+    <div class="zone-title h5">{{ zone.name }}</div>
+    <div class="row row-cols-3 row-cols-md-5 row-cols-lg-6 g-2 mb-3">
+        {% for table in zone.tables.all %}
+            {% if table.is_active %}
+            <div class="col">
+                {% if table.id == order.table_id %}
+                    <button type="button" disabled class="table-btn w-100 h-100 current">
+                        <span>{{ table.label }}</span>
+                        <small>{% t "move_table_current" %}</small>
+                    </button>
+                {% elif table.is_occupied %}
+                    <button type="button" disabled class="table-btn w-100 h-100 occupied">
+                        <span>{{ table.label }}</span>
+                        <small>{% t "table_occupied" %}</small>
+                    </button>
+                {% else %}
+                    <form method="post" action="{% url 'orders:move_table' order.id table.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="table-btn w-100 h-100 free">
+                            <span>{{ table.label }}</span>
+                            <small>{% t "table_free" %}</small>
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endfor %}
+{% endblock %}

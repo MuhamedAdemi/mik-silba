@@ -76,3 +76,24 @@ class OrderItem(models.Model):
     @property
     def subtotal(self):
         return self.quantity * self.unit_price
+
+
+class CashFloat(models.Model):
+    """The starting cash amount ('polog') a waiter puts in the drawer at the
+    start of their shift, so Stanje kase can show the expected cash-in-drawer
+    total (float + cash sales) alongside card sales, for end-of-shift counting."""
+
+    waiter = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="cash_floats"
+    )
+    date = models.DateField()
+    amount = models.DecimalField(max_digits=7, decimal_places=2, default=Decimal("100.00"))
+    set_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [("waiter", "date")]
+        verbose_name = "Polog"
+        verbose_name_plural = "Pologjet"
+
+    def __str__(self):
+        return f"{self.waiter} — {self.date} — {self.amount}"

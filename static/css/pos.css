@@ -66,6 +66,16 @@ body {
     background: var(--luceed-red);
 }
 
+.table-btn.current {
+    background: var(--luceed-selected);
+    color: #1a1200;
+}
+
+.table-btn:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+
 .table-btn small {
     font-weight: 400;
     font-size: .7rem;

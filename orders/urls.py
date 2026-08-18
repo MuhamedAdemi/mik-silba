@@ -17,4 +17,6 @@ urlpatterns = [
     path("<int:order_id>/print/predracun/", views.print_predracun, name="print_predracun"),
     path("<int:order_id>/print/racun/", views.print_racun, name="print_racun"),
     path("stanje-kase/", views.cash_state, name="cash_state"),
+    path("<int:order_id>/zhvendos/", views.move_table_picker, name="move_table_picker"),
+    path("<int:order_id>/zhvendos/<int:table_id>/", views.move_table, name="move_table"),
 ]

@@ -5,7 +5,36 @@
 {% block content %}
 <h1 class="h4 mb-3">{% t "cash_state_title" %} — {% t "cash_state_today" %}</h1>
 
-<div class="row row-cols-3 g-2 mb-4">
+{% if cash_float %}
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <span class="text-muted small">{% t "cash_state_float" %}: <strong>{{ cash_float.amount|eur }}</strong></span>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('float-form').classList.toggle('d-none')">{% t "cash_state_float_change" %}</button>
+    </div>
+    <form id="float-form" method="post" class="d-none row row-cols-auto g-2 align-items-end mb-3">
+        {% csrf_token %}
+        <div class="col">
+            <input type="number" step="0.01" min="0" name="float_amount" value="{{ cash_float.amount }}" class="form-control form-control-sm" style="width: 8rem;">
+        </div>
+        <div class="col">
+            <button type="submit" class="btn btn-primary btn-sm">{% t "staff_save" %}</button>
+        </div>
+    </form>
+{% else %}
+    <div class="alert alert-info">
+        <p class="mb-2">{% t "cash_state_float_prompt" %}</p>
+        <form method="post" class="row row-cols-auto g-2 align-items-end m-0">
+            {% csrf_token %}
+            <div class="col">
+                <input type="number" step="0.01" min="0" name="float_amount" value="100" class="form-control form-control-sm" style="width: 8rem;">
+            </div>
+            <div class="col">
+                <button type="submit" class="btn btn-primary btn-sm">{% t "staff_save" %}</button>
+            </div>
+        </form>
+    </div>
+{% endif %}
+
+<div class="row row-cols-2 row-cols-md-4 g-2 mb-4">
     <div class="col">
         <div class="card text-center shadow-sm"><div class="card-body py-3">
             <div class="fs-5">{{ cash_total|eur }}</div>
@@ -22,6 +51,12 @@
         <div class="card text-center shadow-sm bg-light"><div class="card-body py-3">
             <div class="fs-5 fw-bold">{{ grand_total|eur }}</div>
             <div class="small text-muted">{% t "cash_state_total" %}</div>
+        </div></div>
+    </div>
+    <div class="col">
+        <div class="card text-center shadow-sm bg-light"><div class="card-body py-3">
+            <div class="fs-5 fw-bold">{% if expected_drawer is not None %}{{ expected_drawer|eur }}{% else %}—{% endif %}</div>
+            <div class="small text-muted">{% t "cash_state_expected_drawer" %}</div>
         </div></div>
     </div>
 </div>

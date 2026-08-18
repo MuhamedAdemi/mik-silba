@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Order, OrderItem
+from .models import CashFloat, Order, OrderItem
 
 
 class OrderItemInline(admin.TabularInline):
@@ -16,3 +16,10 @@ class OrderAdmin(admin.ModelAdmin):
     date_hierarchy = "opened_at"
     inlines = [OrderItemInline]
     readonly_fields = ("opened_at",)
+
+
+@admin.register(CashFloat)
+class CashFloatAdmin(admin.ModelAdmin):
+    list_display = ("waiter", "date", "amount", "set_at")
+    list_filter = ("waiter", "date")
+    date_hierarchy = "date"

@@ -1,12 +1,15 @@
+from decimal import Decimal, InvalidOperation
+
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from menu.models import Category, MenuItem
-from venue.models import Table
+from venue.models import Table, Zone
 
-from .models import Order, OrderItem
+from .models import CashFloat, Order, OrderItem
 
 
 @login_required
@@ -134,14 +137,63 @@ def print_racun(request, order_id):
 @login_required
 def cash_state(request):
     today = timezone.localdate()
+
+    if request.method == "POST":
+        try:
+            amount = Decimal(request.POST.get("float_amount", "").replace(",", "."))
+        except InvalidOperation:
+            amount = None
+        if amount is not None and amount >= 0:
+            CashFloat.objects.update_or_create(
+                waiter=request.user, date=today, defaults={"amount": amount}
+            )
+        else:
+            messages.error(request, "Shuma e pologut nuk është e vlefshme.")
+        return redirect("orders:cash_state")
+
+    cash_float = CashFloat.objects.filter(waiter=request.user, date=today).first()
+
     orders_today = Order.objects.filter(
         waiter=request.user, status=Order.CLOSED, closed_at__date=today
     )
     cash_total = sum((o.total for o in orders_today.filter(payment_method=Order.CASH)), 0)
     card_total = sum((o.total for o in orders_today.filter(payment_method=Order.CARD)), 0)
+    float_amount = cash_float.amount if cash_float else None
+    expected_drawer = (float_amount + cash_total) if float_amount is not None else None
+
     return render(request, "orders/cash_state.html", {
         "orders_today": orders_today,
         "cash_total": cash_total,
         "card_total": card_total,
         "grand_total": cash_total + card_total,
+        "cash_float": cash_float,
+        "float_amount": float_amount,
+        "expected_drawer": expected_drawer,
     })
+
+
+@login_required
+def move_table_picker(request, order_id):
+    order = get_object_or_404(Order, pk=order_id, status=Order.OPEN)
+    zones = Zone.objects.prefetch_related("tables").all()
+    return render(request, "orders/move_table.html", {"order": order, "zones": zones})
+
+
+@login_required
+@require_POST
+def move_table(request, order_id, table_id):
+    order = get_object_or_404(Order, pk=order_id, status=Order.OPEN)
+    target_table = get_object_or_404(Table, pk=table_id, is_active=True)
+
+    if target_table.id == order.table_id:
+        return redirect("orders:order_detail", order_id=order.id)
+
+    if target_table.open_order is not None:
+        messages.error(request, f"{target_table.label} është tashmë e zënë.")
+        return redirect("orders:move_table_picker", order_id=order.id)
+
+    old_label = order.table.label
+    order.table = target_table
+    order.save(update_fields=["table"])
+    messages.success(request, f"Porosia u zhvendos nga {old_label} te {target_table.label}.")
+    return redirect("orders:order_detail", order_id=order.id)

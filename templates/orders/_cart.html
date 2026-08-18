@@ -64,8 +64,9 @@
         </div>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center px-2 py-2 no-print">
+    <div class="d-flex justify-content-between align-items-center px-2 py-2 no-print flex-wrap gap-2">
         <a class="btn btn-sm btn-outline-primary" target="_blank" href="{% url 'orders:print_shank' order.id %}">{% t "cart_print_shank" %}</a>
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'orders:move_table_picker' order.id %}">{% t "move_table_button" %}</a>
         {% t "cart_cancel_confirm" as cancel_confirm_msg %}
         <form method="post" action="{% url 'orders:cancel_order' order.id %}" class="m-0"
               onsubmit="return confirm('{{ cancel_confirm_msg|escapejs }}');">
