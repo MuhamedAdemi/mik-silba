@@ -16,7 +16,9 @@
         {% t "history_status" %}:
         {% if order.status == "CLOSED" %}
             <span class="badge bg-success">{% t "history_closed" %}</span> · {% t "close_payment_method" %}:
-            {% if order.payment_method == "CASH" %}{% t "close_cash" %}{% else %}{% t "close_card" %}{% endif %}
+            {% if order.payment_method == "CASH" %}{% t "close_cash" %}
+            {% elif order.payment_method == "CARD" %}{% t "close_card" %}
+            {% else %}{% t "close_eur" %}{% endif %}
         {% else %}
             <span class="badge bg-secondary">{% t "history_cancelled" %}</span>
         {% endif %}

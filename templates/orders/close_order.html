@@ -17,6 +17,7 @@
                 <div class="d-grid gap-2 mb-3">
                     <button type="submit" name="payment_method" value="CASH" class="btn btn-outline-success py-3 fw-bold">{% t "close_cash" %}</button>
                     <button type="submit" name="payment_method" value="CARD" class="btn btn-outline-primary py-3 fw-bold">{% t "close_card" %}</button>
+                    <button type="submit" name="payment_method" value="EUR" class="btn btn-outline-secondary py-3 fw-bold">{% t "close_eur" %}</button>
                 </div>
             </form>
             <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-link">{% t "close_back" %}</a>

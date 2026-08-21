@@ -163,21 +163,24 @@ def cash_overview(request):
     }
 
     rows = []
-    grand_cash = grand_card = grand_float = Decimal("0")
+    grand_cash = grand_card = grand_eur = grand_float = Decimal("0")
     for waiter in waiters:
         waiter_orders = orders_qs.filter(waiter=waiter)
         cash = sum((o.total for o in waiter_orders.filter(payment_method=Order.CASH)), Decimal("0"))
         card = sum((o.total for o in waiter_orders.filter(payment_method=Order.CARD)), Decimal("0"))
+        eur = sum((o.total for o in waiter_orders.filter(payment_method=Order.EUR)), Decimal("0"))
         float_amount = floats_by_waiter.get(waiter.id, Decimal("0"))
         rows.append({
             "waiter": waiter,
             "float": float_amount,
             "cash": cash,
             "card": card,
-            "expected_drawer": float_amount + cash,
+            "eur": eur,
+            "expected_drawer": float_amount + cash + eur,
         })
         grand_cash += cash
         grand_card += card
+        grand_eur += eur
         grand_float += float_amount
 
     rows.sort(key=lambda r: r["waiter"].profile.display_name or r["waiter"].username)
@@ -191,6 +194,7 @@ def cash_overview(request):
         "grand_float": grand_float,
         "grand_cash": grand_cash,
         "grand_card": grand_card,
-        "grand_expected": grand_float + grand_cash,
-        "grand_total": grand_cash + grand_card,
+        "grand_eur": grand_eur,
+        "grand_expected": grand_float + grand_cash + grand_eur,
+        "grand_total": grand_cash + grand_card + grand_eur,
     })

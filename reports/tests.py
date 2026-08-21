@@ -151,3 +151,18 @@ class CashOverviewTests(TestCase):
         far_future = (self.today + timedelta(days=365)).isoformat()
         response = self.client.get(reverse("reports:cash_overview"), {"data": far_future})
         self.assertEqual(len(response.context["rows"]), 0)
+
+    def test_eur_payments_shown_and_included_in_grand_totals(self):
+        start, _ = business_day_bounds(self.today)
+        within_day = start + timedelta(hours=1)
+        eur_order = Order.objects.create(
+            table=self.table, waiter=self.konobar1, status=Order.CLOSED,
+            payment_method=Order.EUR, closed_at=within_day,
+        )
+        OrderItem.objects.create(order=eur_order, menu_item=self.item, quantity=1, unit_price=Decimal("2.30"))
+
+        response = self.client.get(reverse("reports:cash_overview"))
+        rows_by_waiter = {row["waiter"].username: row for row in response.context["rows"]}
+        self.assertEqual(rows_by_waiter["konobar1"]["eur"], Decimal("2.30"))
+        self.assertEqual(response.context["grand_eur"], Decimal("2.30"))
+        self.assertEqual(response.context["grand_total"], Decimal("9.20"))

@@ -82,6 +82,16 @@ class OrderFlowViewTests(TestCase):
         order_item = OrderItem.objects.get(order=order, menu_item=self.item)
         self.assertIsNotNone(order_item.sent_to_bar_at)
 
+    def test_close_order_accepts_eur_payment_method(self):
+        self.client.post(reverse("orders:open_table", args=[self.table.id]))
+        order = self.table.open_order
+        self.client.post(reverse("orders:add_item", args=[order.id, self.item.id]))
+        response = self.client.post(reverse("orders:close_order", args=[order.id]), {"payment_method": "EUR"})
+        order.refresh_from_db()
+        self.assertEqual(order.status, Order.CLOSED)
+        self.assertEqual(order.payment_method, Order.EUR)
+        self.assertRedirects(response, reverse("orders:print_racun", args=[order.id]))
+
 
 class HtmxCsrfTests(TestCase):
     """Regression test: the real browser (htmx) sends the CSRF token via the
@@ -167,6 +177,24 @@ class CashStateTests(TestCase):
         self.client.post(reverse("orders:cash_state"), {"float_amount": "abc"})
         today = today_business_date()
         self.assertFalse(CashFloat.objects.filter(waiter=self.waiter, date=today).exists())
+
+    def test_eur_payments_are_tracked_separately_but_count_toward_drawer(self):
+        eur_order = Order.objects.create(
+            table=self.table, waiter=self.waiter, status=Order.CLOSED,
+            payment_method=Order.EUR, closed_at=timezone.now(),
+        )
+        category = Category.objects.create(name="Pivo+Vino", order=2)
+        item = MenuItem.objects.create(category=category, name="Karlovačko", price=Decimal("3.00"))
+        OrderItem.objects.create(order=eur_order, menu_item=item, quantity=1, unit_price=Decimal("3.00"))
+
+        self.client.post(reverse("orders:cash_state"), {"float_amount": "100"})
+        response = self.client.get(reverse("orders:cash_state"))
+
+        self.assertEqual(response.context["eur_total"], Decimal("3.00"))
+        self.assertEqual(response.context["cash_total"], Decimal("4.60"))
+        # expected drawer = float + cash + eur = 100 + 4.60 + 3.00
+        self.assertEqual(response.context["expected_drawer"], Decimal("107.60"))
+        self.assertEqual(response.context["grand_total"], Decimal("7.60"))
 
 
 class MoveTableTests(TestCase):

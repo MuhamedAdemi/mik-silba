@@ -160,15 +160,20 @@ def cash_state(request):
     )
     cash_total = sum((o.total for o in orders_today.filter(payment_method=Order.CASH)), 0)
     card_total = sum((o.total for o in orders_today.filter(payment_method=Order.CARD)), 0)
+    eur_total = sum((o.total for o in orders_today.filter(payment_method=Order.EUR)), 0)
     float_amount = cash_float.amount if cash_float else None
-    expected_drawer = (float_amount + cash_total) if float_amount is not None else None
+    # Both CASH and EUR are physical money in the drawer for now (EUR is a
+    # reporting label reserved for a possible future Luceed hand-off, not a
+    # different way of taking payment yet).
+    expected_drawer = (float_amount + cash_total + eur_total) if float_amount is not None else None
 
     return render(request, "orders/cash_state.html", {
         "business_date": today,
         "orders_today": orders_today,
         "cash_total": cash_total,
         "card_total": card_total,
-        "grand_total": cash_total + card_total,
+        "eur_total": eur_total,
+        "grand_total": cash_total + card_total + eur_total,
         "cash_float": cash_float,
         "float_amount": float_amount,
         "expected_drawer": expected_drawer,

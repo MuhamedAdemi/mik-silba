@@ -16,9 +16,11 @@ class Order(models.Model):
 
     CASH = "CASH"
     CARD = "CARD"
+    EUR = "EUR"
     PAYMENT_CHOICES = [
         (CASH, "Gotovina"),
         (CARD, "Kartica"),
+        (EUR, "Eur"),
     ]
 
     table = models.ForeignKey(

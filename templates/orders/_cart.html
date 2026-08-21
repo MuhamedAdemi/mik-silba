@@ -58,8 +58,8 @@
             </form>
             <form method="post" action="{% url 'orders:close_order' order.id %}" class="flex-fill m-0 d-flex">
                 {% csrf_token %}
-                <input type="hidden" name="payment_method" value="CASH">
-                <button type="submit" class="pos-btn w-100">Eur</button>
+                <input type="hidden" name="payment_method" value="EUR">
+                <button type="submit" class="pos-btn w-100">{% t "close_eur" %}</button>
             </form>
         </div>
     </div>

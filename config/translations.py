@@ -98,6 +98,7 @@ TRANSLATIONS = {
     "close_payment_method": {"hr": "Način plaćanja", "en": "Payment method", "sq": "Mënyra e pagesës"},
     "close_cash": {"hr": "Gotovina", "en": "Cash", "sq": "Para në dorë"},
     "close_card": {"hr": "Kartica", "en": "Card", "sq": "Kartë"},
+    "close_eur": {"hr": "Eur", "en": "Eur", "sq": "Eur"},
     "close_back": {"hr": "← Natrag na stol", "en": "← Back to table", "sq": "← Kthehu te stoli"},
 
     "print_button": {"hr": "🖨 Ispiši", "en": "🖨 Print", "sq": "🖨 Printo"},
@@ -173,6 +174,7 @@ TRANSLATIONS = {
     "cash_state_your_closed": {"hr": "Tvoji zaključeni stolovi", "en": "Your closed tables", "sq": "Stolovet e tua të mbyllura"},
     "cash_state_cash": {"hr": "Gotovina", "en": "Cash", "sq": "Para në dorë"},
     "cash_state_card": {"hr": "Kartica", "en": "Card", "sq": "Kartë"},
+    "cash_state_eur": {"hr": "Eur", "en": "Eur", "sq": "Eur"},
     "cash_state_total": {"hr": "Ukupno", "en": "Total", "sq": "Total"},
     "cash_state_float": {"hr": "Polog", "en": "Starting float", "sq": "Polog"},
     "cash_state_float_prompt": {

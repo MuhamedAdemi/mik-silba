@@ -24,6 +24,7 @@
             <th>{% t "dashboard_waiter" %}</th>
             <th class="text-end">{% t "cash_state_float" %}</th>
             <th class="text-end">{% t "cash_state_cash" %}</th>
+            <th class="text-end">{% t "cash_state_eur" %}</th>
             <th class="text-end">{% t "cash_state_card" %}</th>
             <th class="text-end">{% t "cash_state_expected_drawer" %}</th>
         </tr>
@@ -34,11 +35,12 @@
                 <td>{{ row.waiter.profile.display_name|default:row.waiter.username }}</td>
                 <td class="text-end">{{ row.float|eur }}</td>
                 <td class="text-end">{{ row.cash|eur }}</td>
+                <td class="text-end">{{ row.eur|eur }}</td>
                 <td class="text-end">{{ row.card|eur }}</td>
                 <td class="text-end">{{ row.expected_drawer|eur }}</td>
             </tr>
         {% empty %}
-            <tr><td colspan="5" class="text-muted">{% t "cash_overview_no_data" %}</td></tr>
+            <tr><td colspan="6" class="text-muted">{% t "cash_overview_no_data" %}</td></tr>
         {% endfor %}
         </tbody>
         {% if rows %}
@@ -47,11 +49,12 @@
             <td>{% t "cash_overview_grand_total" %}</td>
             <td class="text-end">{{ grand_float|eur }}</td>
             <td class="text-end">{{ grand_cash|eur }}</td>
+            <td class="text-end">{{ grand_eur|eur }}</td>
             <td class="text-end">{{ grand_card|eur }}</td>
             <td class="text-end">{{ grand_expected|eur }}</td>
         </tr>
         <tr>
-            <td colspan="5" class="text-muted small">{% t "cash_state_total" %} ({% t "cash_state_cash" %} + {% t "cash_state_card" %}): {{ grand_total|eur }}</td>
+            <td colspan="6" class="text-muted small">{% t "cash_state_total" %} ({% t "cash_state_cash" %} + {% t "cash_state_eur" %} + {% t "cash_state_card" %}): {{ grand_total|eur }}</td>
         </tr>
         </tfoot>
         {% endif %}
