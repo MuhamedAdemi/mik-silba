@@ -191,6 +191,18 @@ TRANSLATIONS = {
         "sq": "Zgjidh tavolinën e re (vetëm të lira)",
     },
     "move_table_current": {"hr": "Trenutni stol", "en": "Current table", "sq": "Tavolina aktuale"},
+
+    "nav_cash_overview": {"hr": "Arka", "en": "Cash overview", "sq": "Arka"},
+    "cash_overview_title": {"hr": "Pregled kase", "en": "Cash overview", "sq": "Pasqyra e arkës"},
+    "cash_overview_prev": {"hr": "← Prethodni dan", "en": "← Previous day", "sq": "← Dita e kaluar"},
+    "cash_overview_next": {"hr": "Sljedeći dan →", "en": "Next day →", "sq": "Dita tjetër →"},
+    "cash_overview_today": {"hr": "Danas", "en": "Today", "sq": "Sot"},
+    "cash_overview_no_data": {
+        "hr": "Nema zaključenih stolova za ovaj dan.",
+        "en": "No closed tables for this day.",
+        "sq": "Nuk ka tavolina të mbyllura për këtë ditë.",
+    },
+    "cash_overview_grand_total": {"hr": "Ukupno svi konobari", "en": "All waiters combined", "sq": "Total të gjithë kamarierët"},
 }
 
 

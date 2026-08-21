@@ -3,7 +3,7 @@
 {% load i18n_extras %}
 {% block title %}{% t "cash_state_title" %} — Caffe MiK{% endblock %}
 {% block content %}
-<h1 class="h4 mb-3">{% t "cash_state_title" %} — {% t "cash_state_today" %}</h1>
+<h1 class="h4 mb-3">{% t "cash_state_title" %} — {% t "cash_state_today" %} ({{ business_date|date:"d.m.Y" }})</h1>
 
 {% if cash_float %}
     <div class="d-flex align-items-center gap-2 mb-3">

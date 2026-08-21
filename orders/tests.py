@@ -1,3 +1,4 @@
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 
 from django.contrib.auth.models import User
@@ -9,6 +10,7 @@ from menu.models import Category, MenuItem
 from venue.models import Table, Zone
 
 from .models import CashFloat, Order, OrderItem
+from .utils import business_date, business_day_bounds, today_business_date
 
 
 class OrderModelTests(TestCase):
@@ -126,7 +128,7 @@ class CashStateTests(TestCase):
         self.waiter = User.objects.create_user("konobar1", password="pass12345")
         zone = Zone.objects.create(name="Terasa A", order=1)
         self.table = Table.objects.create(zone=zone, label="A1", order=1)
-        today = timezone.localdate()
+        today = today_business_date()
         self.cash_order = Order.objects.create(
             table=self.table, waiter=self.waiter, status=Order.CLOSED,
             payment_method=Order.CASH, closed_at=timezone.now(),
@@ -143,7 +145,7 @@ class CashStateTests(TestCase):
 
     def test_setting_float_creates_record_for_today(self):
         self.client.post(reverse("orders:cash_state"), {"float_amount": "100"})
-        today = timezone.localdate()
+        today = today_business_date()
         cash_float = CashFloat.objects.get(waiter=self.waiter, date=today)
         self.assertEqual(cash_float.amount, Decimal("100"))
 
@@ -157,13 +159,13 @@ class CashStateTests(TestCase):
     def test_updating_float_overwrites_same_day_record(self):
         self.client.post(reverse("orders:cash_state"), {"float_amount": "100"})
         self.client.post(reverse("orders:cash_state"), {"float_amount": "150"})
-        today = timezone.localdate()
+        today = today_business_date()
         self.assertEqual(CashFloat.objects.filter(waiter=self.waiter, date=today).count(), 1)
         self.assertEqual(CashFloat.objects.get(waiter=self.waiter, date=today).amount, Decimal("150"))
 
     def test_invalid_float_amount_is_rejected(self):
         self.client.post(reverse("orders:cash_state"), {"float_amount": "abc"})
-        today = timezone.localdate()
+        today = today_business_date()
         self.assertFalse(CashFloat.objects.filter(waiter=self.waiter, date=today).exists())
 
 
@@ -205,3 +207,58 @@ class MoveTableTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "A1")
         self.assertContains(response, "A2")
+
+
+class BusinessDayTests(TestCase):
+    """Caffe MiK stays open from ~08:00 to ~03:00 the next calendar day, so
+    the 'business day' boundary is 07:00, not midnight (see orders/utils.py
+    and settings.BUSINESS_DAY_CUTOFF_HOUR)."""
+
+    def test_late_night_sale_belongs_to_previous_calendar_days_business_day(self):
+        late_night = timezone.make_aware(datetime(2026, 3, 15, 1, 30))
+        self.assertEqual(business_date(late_night), date(2026, 3, 14))
+
+    def test_mid_afternoon_sale_belongs_to_same_calendar_days_business_day(self):
+        afternoon = timezone.make_aware(datetime(2026, 3, 15, 15, 0))
+        self.assertEqual(business_date(afternoon), date(2026, 3, 15))
+
+    def test_exactly_at_cutoff_belongs_to_that_calendar_day(self):
+        at_cutoff = timezone.make_aware(datetime(2026, 3, 15, 7, 0))
+        self.assertEqual(business_date(at_cutoff), date(2026, 3, 15))
+
+    def test_business_day_bounds_span_cutoff_to_cutoff(self):
+        start, end = business_day_bounds(date(2026, 3, 15))
+        self.assertEqual(start, timezone.make_aware(datetime(2026, 3, 15, 7, 0)))
+        self.assertEqual(end, timezone.make_aware(datetime(2026, 3, 16, 7, 0)))
+
+    def test_cash_state_only_counts_sales_within_current_business_day_bounds(self):
+        waiter = User.objects.create_user("konobar9", password="pass12345")
+        zone = Zone.objects.create(name="Terasa A", order=1)
+        table = Table.objects.create(zone=zone, label="A1", order=1)
+        category = Category.objects.create(name="Napici+Sok", order=1)
+        item = MenuItem.objects.create(category=category, name="Cappuccino", price=Decimal("2.30"))
+
+        start, _ = business_day_bounds(today_business_date())
+        # Any timestamp inside [start, start+24h) belongs to today's business
+        # day regardless of what wall-clock time this test happens to run at.
+        within_business_day = start + timedelta(hours=1)
+
+        order = Order.objects.create(
+            table=table, waiter=waiter, status=Order.CLOSED,
+            payment_method=Order.CASH, closed_at=within_business_day,
+        )
+        OrderItem.objects.create(order=order, menu_item=item, quantity=1, unit_price=Decimal("2.30"))
+
+        # Just before the cutoff -> belongs to the *previous* business day,
+        # should NOT show up in today's Stanje kase.
+        before_cutoff = start - timedelta(minutes=5)
+        other_order = Order.objects.create(
+            table=table, waiter=waiter, status=Order.CLOSED,
+            payment_method=Order.CASH, closed_at=before_cutoff,
+        )
+        OrderItem.objects.create(order=other_order, menu_item=item, quantity=1, unit_price=Decimal("2.30"))
+
+        client = Client()
+        client.login(username="konobar9", password="pass12345")
+        response = client.get(reverse("orders:cash_state"))
+        self.assertEqual(response.context["cash_total"], Decimal("2.30"))

@@ -81,6 +81,12 @@ TIME_ZONE = "Europe/Zagreb"
 USE_I18N = True
 USE_TZ = True
 
+# The bar's "business day" runs from this hour to the same hour the next
+# calendar day (it stays open past midnight), so Stanje kase / Historiku /
+# Raporti i shitjeve group a 01:00 sale with the previous evening's shift
+# instead of splitting it into a new day at midnight. See orders/utils.py.
+BUSINESS_DAY_CUTOFF_HOUR = 7
+
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"

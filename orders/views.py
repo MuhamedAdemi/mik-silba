@@ -10,6 +10,7 @@ from menu.models import Category, MenuItem
 from venue.models import Table, Zone
 
 from .models import CashFloat, Order, OrderItem
+from .utils import business_day_bounds, today_business_date
 
 
 @login_required
@@ -136,7 +137,7 @@ def print_racun(request, order_id):
 
 @login_required
 def cash_state(request):
-    today = timezone.localdate()
+    today = today_business_date()
 
     if request.method == "POST":
         try:
@@ -153,8 +154,9 @@ def cash_state(request):
 
     cash_float = CashFloat.objects.filter(waiter=request.user, date=today).first()
 
+    start, end = business_day_bounds(today)
     orders_today = Order.objects.filter(
-        waiter=request.user, status=Order.CLOSED, closed_at__date=today
+        waiter=request.user, status=Order.CLOSED, closed_at__gte=start, closed_at__lt=end
     )
     cash_total = sum((o.total for o in orders_today.filter(payment_method=Order.CASH)), 0)
     card_total = sum((o.total for o in orders_today.filter(payment_method=Order.CARD)), 0)
@@ -162,6 +164,7 @@ def cash_state(request):
     expected_drawer = (float_amount + cash_total) if float_amount is not None else None
 
     return render(request, "orders/cash_state.html", {
+        "business_date": today,
         "orders_today": orders_today,
         "cash_total": cash_total,
         "card_total": card_total,

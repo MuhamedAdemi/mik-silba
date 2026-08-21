@@ -1,3 +1,4 @@
+from datetime import timedelta
 from decimal import Decimal
 
 from django.contrib.auth.models import User
@@ -7,7 +8,8 @@ from django.utils import timezone
 
 from accounts.models import StaffProfile
 from menu.models import Category, MenuItem
-from orders.models import Order, OrderItem
+from orders.models import CashFloat, Order, OrderItem
+from orders.utils import business_day_bounds, today_business_date
 from venue.models import Table, Zone
 
 
@@ -88,3 +90,64 @@ class OrderHistoryTests(TestCase):
         self.client.login(username="shefi1", password="pass12345")
         response = self.client.get(reverse("reports:order_history_detail", args=[open_order.id]))
         self.assertEqual(response.status_code, 404)
+
+
+class CashOverviewTests(TestCase):
+    def setUp(self):
+        self.konobar1 = User.objects.create_user("konobar1", password="pass12345")
+        self.konobar2 = User.objects.create_user("konobar2", password="pass12345")
+        self.admin = User.objects.create_user("shefi1", password="pass12345")
+        self.admin.profile.role = StaffProfile.ADMIN
+        self.admin.profile.save()
+
+        zone = Zone.objects.create(name="Terasa A", order=1)
+        self.table = Table.objects.create(zone=zone, label="A1", order=1)
+        category = Category.objects.create(name="Napici+Sok", order=1)
+        self.item = MenuItem.objects.create(category=category, name="Cappuccino", price=Decimal("2.30"))
+
+        self.today = today_business_date()
+        start, _ = business_day_bounds(self.today)
+        within_day = start + timedelta(hours=1)
+
+        CashFloat.objects.create(waiter=self.konobar1, date=self.today, amount=Decimal("100"))
+        CashFloat.objects.create(waiter=self.konobar2, date=self.today, amount=Decimal("50"))
+
+        order1 = Order.objects.create(
+            table=self.table, waiter=self.konobar1, status=Order.CLOSED,
+            payment_method=Order.CASH, closed_at=within_day,
+        )
+        OrderItem.objects.create(order=order1, menu_item=self.item, quantity=1, unit_price=Decimal("2.30"))
+
+        order2 = Order.objects.create(
+            table=self.table, waiter=self.konobar2, status=Order.CLOSED,
+            payment_method=Order.CARD, closed_at=within_day,
+        )
+        OrderItem.objects.create(order=order2, menu_item=self.item, quantity=2, unit_price=Decimal("2.30"))
+
+        self.client.login(username="shefi1", password="pass12345")
+
+    def test_konobar_cannot_access_cash_overview(self):
+        self.client.logout()
+        self.client.login(username="konobar1", password="pass12345")
+        response = self.client.get(reverse("reports:cash_overview"))
+        self.assertEqual(response.status_code, 403)
+
+    def test_shows_all_waiters_for_the_day_combined(self):
+        response = self.client.get(reverse("reports:cash_overview"))
+        self.assertEqual(response.status_code, 200)
+        rows_by_waiter = {row["waiter"].username: row for row in response.context["rows"]}
+        self.assertEqual(rows_by_waiter["konobar1"]["cash"], Decimal("2.30"))
+        self.assertEqual(rows_by_waiter["konobar1"]["float"], Decimal("100"))
+        self.assertEqual(rows_by_waiter["konobar1"]["expected_drawer"], Decimal("102.30"))
+        self.assertEqual(rows_by_waiter["konobar2"]["card"], Decimal("4.60"))
+
+    def test_grand_totals_sum_across_waiters(self):
+        response = self.client.get(reverse("reports:cash_overview"))
+        self.assertEqual(response.context["grand_cash"], Decimal("2.30"))
+        self.assertEqual(response.context["grand_card"], Decimal("4.60"))
+        self.assertEqual(response.context["grand_float"], Decimal("150"))
+
+    def test_navigating_to_a_day_with_no_sales_shows_empty(self):
+        far_future = (self.today + timedelta(days=365)).isoformat()
+        response = self.client.get(reverse("reports:cash_overview"), {"data": far_future})
+        self.assertEqual(len(response.context["rows"]), 0)

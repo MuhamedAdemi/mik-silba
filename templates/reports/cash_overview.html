@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load menu_extras %}
+{% load i18n_extras %}
+{% block title %}{% t "cash_overview_title" %} — Caffe MiK{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">{% t "cash_overview_title" %}</h1>
+    <a href="{% url 'reports:dashboard' %}" class="btn btn-outline-secondary btn-sm">{% t "sales_live_link" %}</a>
+</div>
+
+<div class="d-flex align-items-center gap-2 mb-4 flex-wrap">
+    <a class="btn btn-outline-secondary btn-sm" href="?data={{ prev_date|date:'Y-m-d' }}">{% t "cash_overview_prev" %}</a>
+    <span class="fw-bold">
+        {{ selected_date|date:"d.m.Y" }}
+        {% if selected_date == today %}<span class="badge bg-primary">{% t "cash_overview_today" %}</span>{% endif %}
+    </span>
+    <a class="btn btn-outline-secondary btn-sm" href="?data={{ next_date|date:'Y-m-d' }}">{% t "cash_overview_next" %}</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-sm table-striped align-middle">
+        <thead>
+        <tr>
+            <th>{% t "dashboard_waiter" %}</th>
+            <th class="text-end">{% t "cash_state_float" %}</th>
+            <th class="text-end">{% t "cash_state_cash" %}</th>
+            <th class="text-end">{% t "cash_state_card" %}</th>
+            <th class="text-end">{% t "cash_state_expected_drawer" %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for row in rows %}
+            <tr>
+                <td>{{ row.waiter.profile.display_name|default:row.waiter.username }}</td>
+                <td class="text-end">{{ row.float|eur }}</td>
+                <td class="text-end">{{ row.cash|eur }}</td>
+                <td class="text-end">{{ row.card|eur }}</td>
+                <td class="text-end">{{ row.expected_drawer|eur }}</td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="5" class="text-muted">{% t "cash_overview_no_data" %}</td></tr>
+        {% endfor %}
+        </tbody>
+        {% if rows %}
+        <tfoot>
+        <tr class="fw-bold border-top">
+            <td>{% t "cash_overview_grand_total" %}</td>
+            <td class="text-end">{{ grand_float|eur }}</td>
+            <td class="text-end">{{ grand_cash|eur }}</td>
+            <td class="text-end">{{ grand_card|eur }}</td>
+            <td class="text-end">{{ grand_expected|eur }}</td>
+        </tr>
+        <tr>
+            <td colspan="5" class="text-muted small">{% t "cash_state_total" %} ({% t "cash_state_cash" %} + {% t "cash_state_card" %}): {{ grand_total|eur }}</td>
+        </tr>
+        </tfoot>
+        {% endif %}
+    </table>
+</div>
+{% endblock %}
