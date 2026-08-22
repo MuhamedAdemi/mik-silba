@@ -81,6 +81,35 @@ body {
     font-size: .7rem;
 }
 
+.move-handle {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--luceed-navy);
+    color: #fff;
+    border: 2px solid var(--luceed-border);
+    font-weight: 700;
+    line-height: 1;
+    z-index: 2;
+}
+
+.table-btn.move-target {
+    animation: mic-pulse 1s infinite;
+    box-shadow: 0 0 0 3px var(--luceed-selected);
+}
+
+.table-btn.move-dim {
+    opacity: .35;
+}
+
+@keyframes mic-pulse {
+    0%, 100% { box-shadow: 0 0 0 2px var(--luceed-selected); }
+    50% { box-shadow: 0 0 0 5px var(--luceed-selected); }
+}
+
 /* ---- Order screen: menu item grid ---- */
 .menu-item-btn {
     min-height: 68px;

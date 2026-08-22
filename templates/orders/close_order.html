@@ -11,15 +11,12 @@
             {% if not order.items.exists %}
                 <div class="alert alert-warning">{% t "close_no_items" %}</div>
             {% endif %}
-            <form method="post">
-                {% csrf_token %}
-                <label class="form-label fw-bold">{% t "close_payment_method" %}</label>
-                <div class="d-grid gap-2 mb-3">
-                    <button type="submit" name="payment_method" value="CASH" class="btn btn-outline-success py-3 fw-bold">{% t "close_cash" %}</button>
-                    <button type="submit" name="payment_method" value="CARD" class="btn btn-outline-primary py-3 fw-bold">{% t "close_card" %}</button>
-                    <button type="submit" name="payment_method" value="EUR" class="btn btn-outline-secondary py-3 fw-bold">{% t "close_eur" %}</button>
-                </div>
-            </form>
+            <label class="form-label fw-bold">{% t "close_payment_method" %}</label>
+            <div class="d-grid gap-2 mb-3">
+                <a href="{% url 'orders:close_order_confirm' order.id %}?metode=CASH" class="btn btn-outline-success py-3 fw-bold">{% t "close_cash" %}</a>
+                <a href="{% url 'orders:close_order_confirm' order.id %}?metode=CARD" class="btn btn-outline-primary py-3 fw-bold">{% t "close_card" %}</a>
+                <a href="{% url 'orders:close_order_confirm' order.id %}?metode=EUR" class="btn btn-outline-secondary py-3 fw-bold">{% t "close_eur" %}</a>
+            </div>
             <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-link">{% t "close_back" %}</a>
         </div>
     </div>

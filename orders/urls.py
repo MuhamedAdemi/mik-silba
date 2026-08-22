@@ -9,6 +9,7 @@ urlpatterns = [
     path("<int:order_id>/", views.order_detail, name="order_detail"),
     path("<int:order_id>/anulo/", views.cancel_order, name="cancel_order"),
     path("<int:order_id>/mbyll/", views.close_order, name="close_order"),
+    path("<int:order_id>/mbyll/konfirmo/", views.close_order_confirm, name="close_order_confirm"),
     path("<int:order_id>/artikuj/<int:menu_item_id>/shto/", views.add_item, name="add_item"),
     path("<int:order_id>/artikuj/<int:item_id>/plus/", views.increment_item, name="increment_item"),
     path("<int:order_id>/artikuj/<int:item_id>/minus/", views.decrement_item, name="decrement_item"),

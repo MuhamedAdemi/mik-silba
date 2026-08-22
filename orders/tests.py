@@ -55,25 +55,6 @@ class OrderFlowViewTests(TestCase):
         order_item = OrderItem.objects.get(order=order, menu_item=self.item)
         self.assertEqual(order_item.quantity, 2)
 
-    def test_cannot_close_order_without_items(self):
-        self.client.post(reverse("orders:open_table", args=[self.table.id]))
-        order = self.table.open_order
-        response = self.client.post(reverse("orders:close_order", args=[order.id]), {"payment_method": "CASH"})
-        order.refresh_from_db()
-        self.assertEqual(order.status, Order.OPEN)
-        self.assertEqual(response.status_code, 200)
-
-    def test_close_order_with_items_frees_table(self):
-        self.client.post(reverse("orders:open_table", args=[self.table.id]))
-        order = self.table.open_order
-        self.client.post(reverse("orders:add_item", args=[order.id, self.item.id]))
-        response = self.client.post(reverse("orders:close_order", args=[order.id]), {"payment_method": "CARD"})
-        order.refresh_from_db()
-        self.assertEqual(order.status, Order.CLOSED)
-        self.assertEqual(order.payment_method, Order.CARD)
-        self.assertFalse(self.table.is_occupied)
-        self.assertRedirects(response, reverse("orders:print_racun", args=[order.id]))
-
     def test_print_shank_marks_items_sent(self):
         self.client.post(reverse("orders:open_table", args=[self.table.id]))
         order = self.table.open_order
@@ -82,15 +63,61 @@ class OrderFlowViewTests(TestCase):
         order_item = OrderItem.objects.get(order=order, menu_item=self.item)
         self.assertIsNotNone(order_item.sent_to_bar_at)
 
-    def test_close_order_accepts_eur_payment_method(self):
+
+class CloseOrderConfirmTests(TestCase):
+    """Closing a table is two phases: picking a payment method only opens a
+    review screen (order stays OPEN, table stays occupied); only POSTing to
+    that review screen actually closes the order and frees the table. This
+    lets staff show the bill on a phone without printing, and back out
+    without any state change if the guest isn't ready yet."""
+
+    def setUp(self):
+        zone = Zone.objects.create(name="Terasa A", order=1)
+        self.table = Table.objects.create(zone=zone, label="A1", order=1)
+        self.waiter = User.objects.create_user("konobar1", password="pass12345")
+        category = Category.objects.create(name="Napici+Sok", order=1)
+        self.item = MenuItem.objects.create(category=category, name="Cappuccino", price=Decimal("2.50"))
+        self.client.login(username="konobar1", password="pass12345")
         self.client.post(reverse("orders:open_table", args=[self.table.id]))
-        order = self.table.open_order
-        self.client.post(reverse("orders:add_item", args=[order.id, self.item.id]))
-        response = self.client.post(reverse("orders:close_order", args=[order.id]), {"payment_method": "EUR"})
-        order.refresh_from_db()
-        self.assertEqual(order.status, Order.CLOSED)
-        self.assertEqual(order.payment_method, Order.EUR)
-        self.assertRedirects(response, reverse("orders:print_racun", args=[order.id]))
+        self.order = self.table.open_order
+        self.client.post(reverse("orders:add_item", args=[self.order.id, self.item.id]))
+
+    def test_viewing_confirm_screen_does_not_close_the_order(self):
+        response = self.client.get(reverse("orders:close_order_confirm", args=[self.order.id]), {"metode": "CARD"})
+        self.assertEqual(response.status_code, 200)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.OPEN)
+        self.assertTrue(self.table.is_occupied)
+        self.assertContains(response, "Cappuccino")
+
+    def test_confirming_closes_order_and_frees_table(self):
+        response = self.client.post(
+            reverse("orders:close_order_confirm", args=[self.order.id]), {"payment_method": "CARD"}
+        )
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.CLOSED)
+        self.assertEqual(self.order.payment_method, Order.CARD)
+        self.assertFalse(self.table.is_occupied)
+        self.assertRedirects(response, reverse("orders:print_racun", args=[self.order.id]))
+
+    def test_confirming_accepts_eur_payment_method(self):
+        self.client.post(reverse("orders:close_order_confirm", args=[self.order.id]), {"payment_method": "EUR"})
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.payment_method, Order.EUR)
+
+    def test_invalid_payment_method_redirects_to_chooser(self):
+        response = self.client.get(reverse("orders:close_order_confirm", args=[self.order.id]), {"metode": "BITCOIN"})
+        self.assertRedirects(response, reverse("orders:close_order", args=[self.order.id]))
+
+    def test_cannot_confirm_close_without_items(self):
+        empty_order = self.table.open_order
+        OrderItem.objects.filter(order=empty_order).delete()
+        response = self.client.post(
+            reverse("orders:close_order_confirm", args=[empty_order.id]), {"payment_method": "CASH"}
+        )
+        empty_order.refresh_from_db()
+        self.assertEqual(empty_order.status, Order.OPEN)
+        self.assertRedirects(response, reverse("orders:close_order", args=[empty_order.id]))
 
 
 class HtmxCsrfTests(TestCase):

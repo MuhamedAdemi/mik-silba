@@ -2,23 +2,40 @@
 {% load i18n_extras %}
 {% block title %}Stolovi — Caffe MiK{% endblock %}
 {% block content %}
+<div id="moveBanner" class="alert alert-warning d-none d-flex justify-content-between align-items-center no-print mb-3">
+    <span>{% t "move_table_banner" %} <strong id="moveBannerFrom"></strong> — <span id="moveBannerHint">{% t "move_table_pick_prompt" %}</span></span>
+    <button type="button" class="btn btn-sm btn-outline-dark" onclick="micCancelMove()">{% t "move_table_cancel" %}</button>
+</div>
+
 {% for zone in zones %}
     <div class="zone-title h5">{{ zone.name }}</div>
     <div class="row row-cols-3 row-cols-md-5 row-cols-lg-6 g-2 mb-3">
         {% for table in zone.tables.all %}
             {% if table.is_active %}
-            <div class="col">
-                <form method="post" action="{% url 'orders:open_table' table.id %}">
-                    {% csrf_token %}
-                    <button type="submit"
-                            id="table-btn-{{ table.id }}"
-                            class="table-btn w-100 h-100 {% if table.is_occupied %}occupied{% else %}free{% endif %}">
-                        <span>{{ table.label }}</span>
-                        <small id="table-info-{{ table.id }}">
-                            {% if table.is_occupied %}{% t "table_occupied" %}{% else %}{% t "table_free" %}{% endif %}
-                        </small>
-                    </button>
-                </form>
+            <div class="col position-relative">
+                {% if table.is_occupied %}
+                    <form method="post" action="{% url 'orders:open_table' table.id %}">
+                        {% csrf_token %}
+                        <button type="submit"
+                                id="table-btn-{{ table.id }}"
+                                class="table-btn w-100 h-100 occupied">
+                            <span>{{ table.label }}</span>
+                            <small id="table-info-{{ table.id }}">{% t "table_occupied" %}</small>
+                        </button>
+                    </form>
+                    <button type="button" class="move-handle no-print"
+                            onclick="event.stopPropagation(); micStartMove({{ table.open_order.id }}, '{{ table.label }}');">⇄</button>
+                {% else %}
+                    <form method="post" action="{% url 'orders:open_table' table.id %}" onsubmit="return micFreeTableSubmit(event, {{ table.id }});">
+                        {% csrf_token %}
+                        <button type="submit"
+                                id="table-btn-{{ table.id }}"
+                                class="table-btn w-100 h-100 free">
+                            <span>{{ table.label }}</span>
+                            <small id="table-info-{{ table.id }}">{% t "table_free" %}</small>
+                        </button>
+                    </form>
+                {% endif %}
             </div>
             {% endif %}
         {% endfor %}
@@ -30,6 +47,7 @@ const STATUS_URL = "{% url 'venue:table_status_json' %}";
 const FREE_LABEL = "{% t 'table_free' %}";
 
 async function refreshTables() {
+    if (micMoveOrderId) return; // don't repaint classes mid-move
     try {
         const res = await fetch(STATUS_URL);
         const data = await res.json();
@@ -52,5 +70,46 @@ async function refreshTables() {
     }
 }
 setInterval(refreshTables, 4500);
+
+let micMoveOrderId = null;
+
+function micGetCookie(name) {
+    const match = document.cookie.match("(^|;)\\s*" + name + "\\s*=\\s*([^;]+)");
+    return match ? match.pop() : "";
+}
+
+function micStartMove(orderId, fromLabel) {
+    micMoveOrderId = orderId;
+    document.getElementById("moveBannerFrom").textContent = "STOL " + fromLabel;
+    document.getElementById("moveBanner").classList.remove("d-none");
+    document.querySelectorAll(".table-btn.free").forEach((btn) => btn.classList.add("move-target"));
+    document.querySelectorAll(".table-btn.occupied").forEach((btn) => btn.classList.add("move-dim"));
+}
+
+function micCancelMove() {
+    micMoveOrderId = null;
+    document.getElementById("moveBanner").classList.add("d-none");
+    document.querySelectorAll(".move-target").forEach((btn) => btn.classList.remove("move-target"));
+    document.querySelectorAll(".move-dim").forEach((btn) => btn.classList.remove("move-dim"));
+}
+
+function micFreeTableSubmit(event, tableId) {
+    if (!micMoveOrderId) {
+        return true; // normal "open table" flow
+    }
+    event.preventDefault();
+    micDoMove(tableId);
+    return false;
+}
+
+async function micDoMove(tableId) {
+    const orderId = micMoveOrderId;
+    micCancelMove();
+    await fetch(`/stolovi/${orderId}/zhvendos/${tableId}/`, {
+        method: "POST",
+        headers: {"X-CSRFToken": micGetCookie("csrftoken")},
+    });
+    location.reload();
+}
 </script>
 {% endblock %}

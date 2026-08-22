@@ -51,16 +51,8 @@
             </form>
             <button type="button" class="pos-btn" onclick="micActOnSelected('hiq')">{% t "action_delete_item" %}</button>
             <a class="pos-btn" href="{% url 'orders:cash_state' %}">{% t "action_cash_state" %}</a>
-            <form method="post" action="{% url 'orders:close_order' order.id %}" class="flex-fill m-0 d-flex">
-                {% csrf_token %}
-                <input type="hidden" name="payment_method" value="CARD">
-                <button type="submit" class="pos-btn w-100">{% t "close_card" %}</button>
-            </form>
-            <form method="post" action="{% url 'orders:close_order' order.id %}" class="flex-fill m-0 d-flex">
-                {% csrf_token %}
-                <input type="hidden" name="payment_method" value="EUR">
-                <button type="submit" class="pos-btn w-100">{% t "close_eur" %}</button>
-            </form>
+            <a class="pos-btn" href="{% url 'orders:close_order_confirm' order.id %}?metode=CARD">{% t "close_card" %}</a>
+            <a class="pos-btn" href="{% url 'orders:close_order_confirm' order.id %}?metode=EUR">{% t "close_eur" %}</a>
         </div>
     </div>
 

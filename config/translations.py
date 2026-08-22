@@ -100,6 +100,9 @@ TRANSLATIONS = {
     "close_card": {"hr": "Kartica", "en": "Card", "sq": "Kartë"},
     "close_eur": {"hr": "Eur", "en": "Eur", "sq": "Eur"},
     "close_back": {"hr": "← Natrag na stol", "en": "← Back to table", "sq": "← Kthehu te stoli"},
+    "confirm_payment_title": {"hr": "Provjeri prije potvrde", "en": "Review before confirming", "sq": "Kontrollo para se të konfirmosh"},
+    "confirm_payment_button": {"hr": "✓ Potvrdi plaćanje", "en": "✓ Confirm payment", "sq": "✓ Konfirmo pagesën"},
+    "confirm_payment_not_yet": {"hr": "← Još nije, natrag na stol", "en": "← Not yet, back to table", "sq": "← Jo ende, kthehu te stoli"},
 
     "print_button": {"hr": "🖨 Ispiši", "en": "🖨 Print", "sq": "🖨 Printo"},
     "shank_confirm_send": {"hr": "Potvrdi slanje šanku", "en": "Confirm sent to bar", "sq": "Konfirmo dërgimin te bari"},
@@ -193,6 +196,8 @@ TRANSLATIONS = {
         "sq": "Zgjidh tavolinën e re (vetëm të lira)",
     },
     "move_table_current": {"hr": "Trenutni stol", "en": "Current table", "sq": "Tavolina aktuale"},
+    "move_table_banner": {"hr": "Premještaš", "en": "Moving", "sq": "Duke zhvendosur"},
+    "move_table_cancel": {"hr": "Odustani", "en": "Cancel", "sq": "Anulo"},
 
     "nav_cash_overview": {"hr": "Arka", "en": "Cash overview", "sq": "Arka"},
     "cash_overview_title": {"hr": "Pregled kase", "en": "Cash overview", "sq": "Pasqyra e arkës"},

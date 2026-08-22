@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load menu_extras %}
+{% load i18n_extras %}
+{% block title %}{% t "confirm_payment_title" %} — Stol {{ order.table.label }}{% endblock %}
+{% block content %}
+<h1 class="h5 text-center mb-3 no-print">{% t "confirm_payment_title" %}</h1>
+
+<div class="receipt">
+    {% include "orders/_receipt_header.html" %}
+    <table class="table table-sm">
+        <tbody>
+        {% for item in order.items.all %}
+            <tr>
+                <td>{{ item.menu_item.name }}</td>
+                <td class="text-end">
+                    {% if item.quantity > 1 %}
+                        {{ item.quantity }} x {{ item.unit_price|eur }} = {{ item.subtotal|eur }}
+                    {% else %}
+                        {{ item.subtotal|eur }}
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <hr>
+    <div class="d-flex justify-content-between fw-bold fs-5">
+        <span>{% t "total_caps" %}</span>
+        <span>{{ order.total|eur }}</span>
+    </div>
+</div>
+
+<div class="d-grid gap-2 mt-4 no-print" style="max-width: 420px; margin: 0 auto;">
+    <p class="text-center mb-1">
+        {% t "close_payment_method" %}:
+        <strong>
+            {% if payment_method == "CASH" %}{% t "close_cash" %}
+            {% elif payment_method == "CARD" %}{% t "close_card" %}
+            {% else %}{% t "close_eur" %}{% endif %}
+        </strong>
+    </p>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="payment_method" value="{{ payment_method }}">
+        <button type="submit" class="btn btn-success btn-lg w-100 fw-bold">{% t "confirm_payment_button" %}</button>
+    </form>
+    <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-outline-secondary">{% t "confirm_payment_not_yet" %}</a>
+</div>
+{% endblock %}

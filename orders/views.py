@@ -102,15 +102,34 @@ def cancel_order(request, order_id):
 @login_required
 def close_order(request, order_id):
     order = get_object_or_404(Order, pk=order_id, status=Order.OPEN)
+    return render(request, "orders/close_order.html", {"order": order})
+
+
+@login_required
+def close_order_confirm(request, order_id):
+    """Second phase of closing a table: show the final bill on screen
+    (no auto-print) so staff can review it with the guest, and only
+    actually close the order — freeing the table — once 'Konfirmo' is
+    pressed here. Nothing changes in the database until then."""
+    order = get_object_or_404(Order, pk=order_id, status=Order.OPEN)
+    payment_method = request.POST.get("payment_method") or request.GET.get("metode")
+    if payment_method not in dict(Order.PAYMENT_CHOICES):
+        return redirect("orders:close_order", order_id=order.id)
+
     if request.method == "POST":
-        payment_method = request.POST.get("payment_method")
-        if payment_method in dict(Order.PAYMENT_CHOICES) and order.items.exists():
+        if order.items.exists():
             order.status = Order.CLOSED
             order.payment_method = payment_method
             order.closed_at = timezone.now()
             order.save(update_fields=["status", "payment_method", "closed_at"])
             return redirect("orders:print_racun", order_id=order.id)
-    return render(request, "orders/close_order.html", {"order": order})
+        messages.error(request, "Stoli s'ka artikuj, nuk mund të mbyllet.")
+        return redirect("orders:close_order", order_id=order.id)
+
+    return render(request, "orders/close_order_confirm.html", {
+        "order": order,
+        "payment_method": payment_method,
+    })
 
 
 @login_required
